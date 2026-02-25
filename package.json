@@ -1,0 +1,17 @@
+{
+  "name": "arcane-defenders",
+  "version": "1.0.0",
+  "description": "A fantasy tower defence game with magic and monsters",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "phaser": "^3.87.0"
+  },
+  "devDependencies": {
+    "vite": "^6.1.0"
+  }
+}
