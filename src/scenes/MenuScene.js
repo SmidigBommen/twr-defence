@@ -75,10 +75,7 @@ export default class MenuScene extends Phaser.Scene {
     });
 
     this.createButton(cx, cy + 95, 'EDITOR', () => {
-      this.cameras.main.fadeOut(400);
-      this.time.delayedCall(400, () => {
-        this.scene.start('EditorScene');
-      });
+      window.location.href = './editor.html';
     });
 
     // Version

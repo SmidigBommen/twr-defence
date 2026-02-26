@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Arcane Defenders — Level Editor</title>
+  <style>
+    :root {
+      --bg: #0a0a1a;
+      --surface: #1a1a2e;
+      --surface2: #2a2a3e;
+      --border: #3a3a5c;
+      --text: #ecf0f1;
+      --text-dim: #8a8aaa;
+      --accent: #ffd700;
+      --accent2: #bb6bd9;
+      --green: #2ecc71;
+      --red: #e74c3c;
+      --blue: #3498db;
+      --toolbar-w: 52px;
+      --right-w: 180px;
+      --topbar-h: 32px;
+      --statusbar-h: 24px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 12px;
+      overflow: hidden;
+      height: 100vh;
+    }
+    #app {
+      display: grid;
+      grid-template:
+        "topbar topbar topbar" var(--topbar-h)
+        "toolbar canvas right" 1fr
+        "bottom bottom bottom" var(--statusbar-h)
+        / var(--toolbar-w) 1fr var(--right-w);
+      height: 100vh;
+    }
+
+    /* Top Bar */
+    #topbar {
+      grid-area: topbar;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 8px;
+    }
+    #topbar .title { color: var(--accent); font-weight: bold; font-size: 13px; }
+    #topbar .name-input {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 12px;
+      padding: 2px 6px;
+      width: 140px;
+      outline: none;
+    }
+    #topbar .name-input:focus { border-color: var(--accent); }
+    #topbar .spacer { flex: 1; }
+    .btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 11px;
+      padding: 3px 10px;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .btn:hover { color: var(--accent); border-color: var(--accent); }
+    .btn.primary { color: var(--green); border-color: var(--green); }
+    .btn.primary:hover { background: #27ae6033; }
+
+    /* Toolbar (left) */
+    #toolbar {
+      grid-area: toolbar;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 4px;
+      gap: 2px;
+      overflow-y: auto;
+    }
+    .tool-btn {
+      width: 44px;
+      height: 36px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1px;
+      position: relative;
+    }
+    .tool-btn:hover { border-color: var(--text-dim); }
+    .tool-btn.active { border-color: var(--accent); color: var(--accent); background: #3a3a5e; }
+    .tool-btn .shortcut {
+      position: absolute;
+      top: 1px;
+      right: 2px;
+      font-size: 8px;
+      color: var(--accent);
+      opacity: 0.6;
+    }
+    .tool-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 4px 0;
+    }
+    .tool-btn.action { font-size: 9px; height: 28px; }
+    .tool-btn.action:hover { color: var(--text); }
+
+    /* Canvas area */
+    #canvas-wrap {
+      grid-area: canvas;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: #050510;
+    }
+    #map-canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      cursor: crosshair;
+    }
+
+    /* Right panel */
+    #right {
+      grid-area: right;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .panel-heading {
+      font-size: 10px;
+      color: var(--accent);
+      padding: 6px 8px 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Tile cards */
+    .tile-list { display: flex; flex-direction: column; gap: 1px; padding: 2px 4px; }
+    .tile-card {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-size: 11px;
+    }
+    .tile-card:hover { background: var(--surface2); }
+    .tile-card.active { border-color: var(--accent); background: #3a3a5e; }
+    .tile-card .swatch {
+      width: 14px;
+      height: 14px;
+      border: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tile-card .key {
+      font-size: 9px;
+      color: var(--accent);
+      opacity: 0.5;
+      margin-left: auto;
+    }
+
+    /* Properties */
+    .props { padding: 4px 8px; display: flex; flex-direction: column; gap: 4px; }
+    .prop-row { display: flex; align-items: center; gap: 4px; }
+    .prop-row label { font-size: 10px; color: var(--text-dim); width: 40px; }
+    .prop-row input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 11px;
+      padding: 2px 4px;
+      outline: none;
+    }
+    .prop-row input:focus { border-color: var(--accent); }
+
+    /* Action buttons */
+    .actions { padding: 4px 8px; display: flex; flex-direction: column; gap: 2px; }
+    .actions .btn { width: 100%; text-align: center; }
+
+    /* Status Bar */
+    #statusbar {
+      grid-area: bottom;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 16px;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    #statusbar .status-msg { color: var(--green); margin-left: auto; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="topbar"></div>
+    <div id="toolbar"></div>
+    <div id="canvas-wrap"><canvas id="map-canvas"></canvas></div>
+    <div id="right"></div>
+    <div id="statusbar"></div>
+  </div>
+  <script type="module" src="/src/editor/main.js"></script>
+</body>
+</html>

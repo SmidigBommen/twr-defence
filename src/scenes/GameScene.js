@@ -17,7 +17,37 @@ export default class GameScene extends Phaser.Scene {
   }
 
   create() {
-    const level = LEVELS.find(l => l.id === this.levelId);
+    let level;
+
+    // Check for custom level from editor (one-shot: cleared after loading)
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('customLevel') === 'true') {
+      try {
+        const raw = localStorage.getItem('td_editor_temp_level');
+        if (raw) {
+          const custom = JSON.parse(raw);
+          level = {
+            id: 99,
+            name: custom.name || 'Custom Level',
+            startingGold: custom.startingGold || 120,
+            lives: custom.lives || 20,
+            map: custom.map,
+            waypoints: custom.waypoints || [],
+            waves: LEVELS[0].waves, // default to level 1 waves
+          };
+        }
+      } catch (e) {
+        console.warn('Failed to load custom level:', e);
+      }
+      // Clear so subsequent levels load campaign data
+      localStorage.removeItem('td_editor_temp_level');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+
+    if (!level) {
+      level = LEVELS.find(l => l.id === this.levelId);
+    }
+
     if (!level) {
       this.scene.start('LevelSelectScene');
       return;
@@ -96,6 +126,7 @@ export default class GameScene extends Phaser.Scene {
           y * TILE_SIZE + TILE_SIZE / 2,
           'tile_grass'
         );
+        bg.setDisplaySize(TILE_SIZE, TILE_SIZE);
         bg.setDepth(0);
       }
     }
@@ -128,6 +159,7 @@ export default class GameScene extends Phaser.Scene {
           y * TILE_SIZE + TILE_SIZE / 2,
           textureKey
         );
+        tile.setDisplaySize(TILE_SIZE, TILE_SIZE);
         tile.setDepth(1);
 
         // Path edge darkening for depth
@@ -189,6 +221,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Gold
     this.goldIcon = this.add.image(10, hudY, 'icon_coin');
+    this.goldIcon.setScale(0.5);
     this.goldIcon.setDepth(31);
     this.goldText = this.add.text(20, hudY, `${this.economy.gold}`, {
       fontSize: '9px',
@@ -200,6 +233,7 @@ export default class GameScene extends Phaser.Scene {
 
     // Lives
     this.livesIcon = this.add.image(75, hudY, 'icon_heart');
+    this.livesIcon.setScale(0.5);
     this.livesIcon.setDepth(31);
     this.livesText = this.add.text(85, hudY, `${this.economy.lives}`, {
       fontSize: '9px',
