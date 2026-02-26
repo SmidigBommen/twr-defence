@@ -5,13 +5,13 @@ export const TILE_SIZE = 16;
 export const GRID_COLS = 30;
 export const GRID_ROWS = 17;
 
-// Sprite size targets (Spritey-compatible: 16x16 or 32x32)
+// Sprite size targets (all 32x32 for unified Spritey workflow)
 export const SPRITE_SIZES = {
-  TILE: 16,
+  TILE: 32,
   TOWER: 32,
   ENEMY: 32,
-  PROJECTILE: 16,
-  ICON: 16,
+  PROJECTILE: 32,
+  ICON: 32,
 };
 
 // Map cell types

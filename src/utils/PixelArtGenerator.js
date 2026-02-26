@@ -1,5 +1,4 @@
-import { COLORS, TILE_SIZE } from './constants.js';
-import { SPRITE_SIZES, ASSET_MANIFEST } from '../data/assetManifest.js';
+import { COLORS, TILE_SIZE, SPRITE_SIZES } from './constants.js';
 
 // ── Outline color constants ──────────────────────────────
 const OL = 0x1a1a2e;   // Standard dark outline
@@ -112,7 +111,7 @@ export function generateFallbackTextures(scene) {
 }
 
 // ══════════════════════════════════════════════════════════
-// TILES (16x16)
+// TILES (16x16 source → 32x32 texture)
 // ══════════════════════════════════════════════════════════
 
 function generateTiles(scene) {
@@ -157,7 +156,7 @@ function genTileGrass(scene) {
   g.moveTo(1, 14); g.lineTo(2, 12);
   g.strokePath();
 
-  gen(g, 'tile_grass', S, S);
+  gen(g, 'tile_grass', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTilePath(scene) {
@@ -188,7 +187,7 @@ function genTilePath(scene) {
   g.fillCircle(11, 13, 0.8);
   g.fillCircle(6, 6, 0.6);
 
-  gen(g, 'tile_path', S, S);
+  gen(g, 'tile_path', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTileWater(scene) {
@@ -220,7 +219,7 @@ function genTileWater(scene) {
   g.fillCircle(13, 9, 0.5);
   g.fillCircle(2, 13, 0.5);
 
-  gen(g, 'tile_water', S, S);
+  gen(g, 'tile_water', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTileTrees(scene, key, positions) {
@@ -259,7 +258,7 @@ function genTileTrees(scene, key, positions) {
     g.fillCircle(tx - 1, ty - 2, 1);
   }
 
-  gen(g, key, S, S);
+  gen(g, key, S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTileRocks(scene) {
@@ -282,7 +281,7 @@ function genTileRocks(scene) {
   g.fillCircle(10, 3, 0.8);
   g.fillCircle(7, 9.5, 1);
 
-  gen(g, 'tile_rocks', S, S);
+  gen(g, 'tile_rocks', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTileBuild(scene) {
@@ -314,7 +313,7 @@ function genTileBuild(scene) {
   g.fillTriangle(c, c - 2, c + 2, c, c, c + 2);
   g.fillTriangle(c, c - 2, c - 2, c, c, c + 2);
 
-  gen(g, 'tile_build', S, S);
+  gen(g, 'tile_build', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTileCastle(scene) {
@@ -354,7 +353,7 @@ function genTileCastle(scene) {
   g.fillStyle(0xe74c3c);
   g.fillTriangle(13, 0, 15, 1, 13, 2);
 
-  gen(g, 'tile_castle', S, S);
+  gen(g, 'tile_castle', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -396,7 +395,7 @@ function genTowerArcane(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(cx - 2, 8, 0.6);
 
-  gen(g, 'tower_arcane', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
+  gen(g, 'tower_arcane', S, S, SPRITE_SIZES.TOWER, SPRITE_SIZES.TOWER);
 }
 
 function genTowerFlame(scene) {
@@ -433,7 +432,7 @@ function genTowerFlame(scene) {
   g.fillStyle(0xffffff);
   g.fillTriangle(cx, 8, cx - 1, 13, cx + 1, 13);
 
-  gen(g, 'tower_flame', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
+  gen(g, 'tower_flame', S, S, SPRITE_SIZES.TOWER, SPRITE_SIZES.TOWER);
 }
 
 function genTowerFrost(scene) {
@@ -463,7 +462,7 @@ function genTowerFrost(scene) {
   g.fillTriangle(cx - 4, 14, cx - 7, 18, cx - 3, 18);
   g.fillTriangle(cx + 4, 14, cx + 3, 18, cx + 7, 18);
 
-  gen(g, 'tower_frost', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
+  gen(g, 'tower_frost', S, S, SPRITE_SIZES.TOWER, SPRITE_SIZES.TOWER);
 }
 
 function genTowerBarracks(scene) {
@@ -502,7 +501,7 @@ function genTowerBarracks(scene) {
   g.fillStyle(0xe74c3c);
   g.fillRect(cx - 0.5, 13, 1, 2.5);
 
-  gen(g, 'tower_barracks', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
+  gen(g, 'tower_barracks', S, S, SPRITE_SIZES.TOWER, SPRITE_SIZES.TOWER);
 }
 
 function genTowerLightning(scene) {
@@ -534,7 +533,7 @@ function genTowerLightning(scene) {
   g.fillCircle(cx, 10, 1.2);
   g.fillCircle(cx, 13, 1);
 
-  gen(g, 'tower_lightning', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
+  gen(g, 'tower_lightning', S, S, SPRITE_SIZES.TOWER, SPRITE_SIZES.TOWER);
 }
 
 function genTowerEnchanter(scene) {
@@ -581,7 +580,7 @@ function genTowerEnchanter(scene) {
   g.fillCircle(cx, 7, 0.8);
   g.fillCircle(cx, 17, 0.8);
 
-  gen(g, 'tower_enchanter', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
+  gen(g, 'tower_enchanter', S, S, SPRITE_SIZES.TOWER, SPRITE_SIZES.TOWER);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -638,7 +637,7 @@ function genEnemyGoblin(scene) {
   oRect(g, 7, 16, 2, 3, 0x3e8948, OL);
   oRect(g, 11, 16, 2, 3, 0x3e8948, OL);
 
-  gen(g, 'enemy_goblin', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_goblin', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyWolf(scene) {
@@ -698,7 +697,7 @@ function genEnemyWolf(scene) {
   g.fillRect(12.5, 13, 1.5, 4);
   g.fillRect(15.5, 13, 1.5, 4);
 
-  gen(g, 'enemy_wolf', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_wolf', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyTroll(scene) {
@@ -744,7 +743,7 @@ function genEnemyTroll(scene) {
   g.fillTriangle(cx - 2, 7, cx - 1, 8.5, cx, 7);
   g.fillTriangle(cx + 2, 7, cx + 1, 8.5, cx, 7);
 
-  gen(g, 'enemy_troll', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_troll', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyHarpy(scene) {
@@ -804,7 +803,7 @@ function genEnemyHarpy(scene) {
   g.lineTo(cx + 3, 19);
   g.strokePath();
 
-  gen(g, 'enemy_harpy', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_harpy', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyWraith(scene) {
@@ -859,7 +858,7 @@ function genEnemyWraith(scene) {
   g.fillStyle(0xa8d8ea, 0.5);
   g.fillRect(cx - 1, 9, 2, 6);
 
-  gen(g, 'enemy_wraith', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_wraith', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyPriest(scene) {
@@ -920,7 +919,7 @@ function genEnemyPriest(scene) {
   g.fillStyle(0xff6b6b);
   g.fillCircle(sx - 0.5, 2.5, 0.8);
 
-  gen(g, 'enemy_priest', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_priest', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyImp(scene) {
@@ -982,7 +981,7 @@ function genEnemyImp(scene) {
   g.lineTo(cx + 8, 12);
   g.strokePath();
 
-  gen(g, 'enemy_imp', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_imp', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyDragon(scene) {
@@ -1040,7 +1039,7 @@ function genEnemyDragon(scene) {
   oRect(g, 6, 15, 3, 4, 0x8b0000, OL);
   oRect(g, 11, 15, 3, 4, 0x8b0000, OL);
 
-  gen(g, 'enemy_dragon', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_dragon', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 function genEnemyLich(scene) {
@@ -1114,7 +1113,7 @@ function genEnemyLich(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(sx - 0.5, 1.5, 0.6);
 
-  gen(g, 'enemy_lich', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
+  gen(g, 'enemy_lich', S, S, SPRITE_SIZES.ENEMY, SPRITE_SIZES.ENEMY);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1140,7 +1139,7 @@ function genProjArcane(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c - 0.5, c - 0.5, 0.5);
 
-  gen(g, 'proj_arcane', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
+  gen(g, 'proj_arcane', S, S, SPRITE_SIZES.PROJECTILE, SPRITE_SIZES.PROJECTILE);
 }
 
 function genProjFlame(scene) {
@@ -1155,7 +1154,7 @@ function genProjFlame(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c - 0.3, c - 0.3, 0.5);
 
-  gen(g, 'proj_flame', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
+  gen(g, 'proj_flame', S, S, SPRITE_SIZES.PROJECTILE, SPRITE_SIZES.PROJECTILE);
 }
 
 function genProjFrost(scene) {
@@ -1175,7 +1174,7 @@ function genProjFrost(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c, c, 1);
 
-  gen(g, 'proj_frost', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
+  gen(g, 'proj_frost', S, S, SPRITE_SIZES.PROJECTILE, SPRITE_SIZES.PROJECTILE);
 }
 
 function genProjLightning(scene) {
@@ -1200,7 +1199,7 @@ function genProjLightning(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c, c, 1);
 
-  gen(g, 'proj_lightning', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
+  gen(g, 'proj_lightning', S, S, SPRITE_SIZES.PROJECTILE, SPRITE_SIZES.PROJECTILE);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1232,7 +1231,7 @@ function genIconHeart(scene) {
   g.fillStyle(0xff6b6b);
   g.fillCircle(cx - 2, 3.5, 1);
 
-  gen(g, 'icon_heart', S, S, SPRITE_SIZES.icon, SPRITE_SIZES.icon);
+  gen(g, 'icon_heart', S, S, SPRITE_SIZES.ICON, SPRITE_SIZES.ICON);
 }
 
 function genIconCoin(scene) {
@@ -1258,7 +1257,7 @@ function genIconCoin(scene) {
   g.fillStyle(0xffeaa7);
   g.fillCircle(cx - 1.5, cy - 1.5, 1);
 
-  gen(g, 'icon_coin', S, S, SPRITE_SIZES.icon, SPRITE_SIZES.icon);
+  gen(g, 'icon_coin', S, S, SPRITE_SIZES.ICON, SPRITE_SIZES.ICON);
 }
 
 // ══════════════════════════════════════════════════════════

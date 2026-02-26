@@ -1,16 +1,10 @@
-// Sprite size targets for Spritey-compatible pipeline (16x16 or 32x32)
-export const SPRITE_SIZES = {
-  tile: 16,
-  tower: 32,
-  enemy: 32,
-  projectile: 16,
-  icon: 16,
-};
+import { SPRITE_SIZES } from '../utils/constants.js';
+export { SPRITE_SIZES };
 
 // Maps texture keys to categories and file paths for PNG override loading.
 // Particles are excluded — they are always procedurally generated.
 export const ASSET_MANIFEST = [
-  // Tiles (16x16)
+  // Tiles (32x32)
   { key: 'tile_grass', category: 'tile', path: 'assets/tiles/tile_grass.png' },
   { key: 'tile_path', category: 'tile', path: 'assets/tiles/tile_path.png' },
   { key: 'tile_water', category: 'tile', path: 'assets/tiles/tile_water.png' },
@@ -40,13 +34,13 @@ export const ASSET_MANIFEST = [
   { key: 'enemy_dragon', category: 'enemy', path: 'assets/enemies/enemy_dragon.png' },
   { key: 'enemy_lich', category: 'enemy', path: 'assets/enemies/enemy_lich.png' },
 
-  // Projectiles (16x16)
+  // Projectiles (32x32)
   { key: 'proj_arcane', category: 'projectile', path: 'assets/projectiles/proj_arcane.png' },
   { key: 'proj_flame', category: 'projectile', path: 'assets/projectiles/proj_flame.png' },
   { key: 'proj_frost', category: 'projectile', path: 'assets/projectiles/proj_frost.png' },
   { key: 'proj_lightning', category: 'projectile', path: 'assets/projectiles/proj_lightning.png' },
 
-  // Icons (16x16)
+  // Icons (32x32)
   { key: 'icon_heart', category: 'icon', path: 'assets/icons/icon_heart.png' },
   { key: 'icon_coin', category: 'icon', path: 'assets/icons/icon_coin.png' },
 ];

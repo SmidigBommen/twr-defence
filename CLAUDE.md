@@ -18,7 +18,7 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - Tile size: 16x16 pixels
 - Phaser pixelArt mode enabled (nearest-neighbor scaling)
 - Map grid: 30x17 tiles (480x272) with HUD overlay
-- Sprite sizes: tiles 16x16, towers 32x32, enemies 32x32, projectiles 16x16, icons 16x16 (Spritey-compatible)
+- Sprite sizes: all 32x32 textures (unified Spritey workflow), displayed at appropriate sizes via setDisplaySize/setScale
 
 ### Tower Types (6)
 1. **Arcane Turret** - Rapid fire magic bolts, single target, cheap
@@ -64,18 +64,19 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - `src/managers/` - Wave, Economy, Leaderboard managers
 - `src/data/` - Tower stats, enemy stats, level definitions, asset manifest
 - `src/utils/` - Constants, cartoon sprite generator, path tracer
+- `plan.md` - full plan and milestones in the project. This file is updated before coding starts.
 
 ### Art Style & Asset Pipeline
 Sprites are loaded as PNGs from `public/assets/` when present, falling back to procedural
 generation in `src/utils/PixelArtGenerator.js`. This supports importing hand-drawn pixel
-art from [Spritey](https://github.com/SmidigBommen/spritey) (16x16 and 32x32 PNGs).
+art from [Spritey](https://github.com/SmidigBommen/spritey) (all 32x32 PNGs).
 
 **Asset directory structure:**
-- `public/assets/tiles/` — 16x16 tile PNGs
+- `public/assets/tiles/` — 32x32 tile PNGs
 - `public/assets/towers/` — 32x32 tower PNGs
 - `public/assets/enemies/` — 32x32 enemy PNGs
-- `public/assets/projectiles/` — 16x16 projectile PNGs
-- `public/assets/icons/` — 16x16 icon PNGs
+- `public/assets/projectiles/` — 32x32 projectile PNGs
+- `public/assets/icons/` — 32x32 icon PNGs
 
 **Override mechanism:** `BootScene.preload()` loads PNGs listed in `src/data/assetManifest.js`.
 `BootScene.create()` calls `generateFallbackTextures()` which only generates textures for
