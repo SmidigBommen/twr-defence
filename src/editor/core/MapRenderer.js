@@ -1,7 +1,7 @@
 import { CELL, TILE_SIZE, GRID_COLS, GRID_ROWS } from '../../utils/constants.js';
 import { eventBus } from './EventBus.js';
 
-// Cell type → display color
+// Cell type → display color (fallback when no sprite available)
 const CELL_COLORS = {
   [CELL.EMPTY]:  '#3e8948',
   [CELL.PATH]:   '#8b6914',
@@ -14,16 +14,31 @@ const CELL_COLORS = {
   [CELL.BRIDGE]: '#b8860b',
 };
 
+// Cell type → texture key (matches GameScene.renderMap)
+const CELL_TEXTURE_MAP = {
+  [CELL.EMPTY]:  'tile_grass',
+  [CELL.PATH]:   'tile_path',
+  [CELL.BUILD]:  'tile_build',
+  [CELL.WATER]:  'tile_water',
+  [CELL.ROCKS]:  'tile_rocks',
+  [CELL.START]:  'tile_path',
+  [CELL.END]:    'tile_castle',
+  [CELL.BRIDGE]: 'tile_path',
+};
+
+const TREE_VARIANTS = ['tile_trees', 'tile_trees2', 'tile_trees3'];
+
 const CELL_LABELS = {
   [CELL.START]: 'S',
   [CELL.END]:   'E',
 };
 
 export default class MapRenderer {
-  constructor(canvas, project) {
+  constructor(canvas, project, spriteLoader) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
     this.project = project;
+    this.spriteLoader = spriteLoader || null;
 
     this.canvas.width = GRID_COLS * TILE_SIZE;
     this.canvas.height = GRID_ROWS * TILE_SIZE;
@@ -41,6 +56,7 @@ export default class MapRenderer {
     eventBus.on('waypoints:changed', this._onChanged);
     eventBus.on('project:loaded', this._onChanged);
     eventBus.on('canvas:dirty', this._onChanged);
+    eventBus.on('sprites:changed', this._onChanged);
 
     this._raf = null;
     this._loop();
@@ -60,12 +76,29 @@ export default class MapRenderer {
 
     ctx.clearRect(0, 0, w, h);
 
-    // Draw tiles
+    // Draw tiles (WYSIWYG: use sprites when available, colored rects as fallback)
+    ctx.imageSmoothingEnabled = false;
     for (let y = 0; y < GRID_ROWS; y++) {
       for (let x = 0; x < GRID_COLS; x++) {
         const cell = project.map[y][x];
-        ctx.fillStyle = CELL_COLORS[cell] || CELL_COLORS[CELL.EMPTY];
-        ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        const px = x * TILE_SIZE;
+        const py = y * TILE_SIZE;
+
+        // Resolve texture key
+        let texKey;
+        if (cell === CELL.TREES) {
+          texKey = TREE_VARIANTS[(x * 7 + y * 13) % TREE_VARIANTS.length];
+        } else {
+          texKey = CELL_TEXTURE_MAP[cell];
+        }
+
+        const img = this.spriteLoader && texKey ? this.spriteLoader.get(texKey) : null;
+        if (img) {
+          ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+        } else {
+          ctx.fillStyle = CELL_COLORS[cell] || CELL_COLORS[CELL.EMPTY];
+          ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);
+        }
 
         const label = CELL_LABELS[cell];
         if (label) {
@@ -73,7 +106,7 @@ export default class MapRenderer {
           ctx.font = 'bold 10px monospace';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(label, x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+          ctx.fillText(label, px + TILE_SIZE / 2, py + TILE_SIZE / 2);
         }
       }
     }
@@ -207,5 +240,6 @@ export default class MapRenderer {
     eventBus.off('waypoints:changed', this._onChanged);
     eventBus.off('project:loaded', this._onChanged);
     eventBus.off('canvas:dirty', this._onChanged);
+    eventBus.off('sprites:changed', this._onChanged);
   }
 }

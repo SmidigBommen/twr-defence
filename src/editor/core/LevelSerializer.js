@@ -1,4 +1,5 @@
 import { eventBus } from './EventBus.js';
+import { ENEMY_TYPES } from '../../utils/constants.js';
 import { mapToAscii } from '../../utils/pathTracer.js';
 
 const LS_KEY = 'td_editor_autosave';
@@ -76,6 +77,24 @@ export default class LevelSerializer {
 
   // --- Clipboard export (JS code snippet) ---
 
+  _formatWavesCode(waves) {
+    if (!waves || waves.length === 0) return '    waves: [],';
+    // Reverse lookup: value → ENEMY_TYPES key
+    const typeToConst = {};
+    for (const [k, v] of Object.entries(ENEMY_TYPES)) typeToConst[v] = `ENEMY_TYPES.${k}`;
+
+    const waveLines = waves.map(wave => {
+      const groups = wave.enemies.map(g => {
+        const t = typeToConst[g.type] || `'${g.type}'`;
+        const parts = [`type: ${t}`, `count: ${g.count}`, `interval: ${g.interval}`];
+        if (g.delay) parts.push(`delay: ${g.delay}`);
+        return `          { ${parts.join(', ')} },`;
+      }).join('\n');
+      return `      {\n        enemies: [\n${groups}\n        ],\n      },`;
+    }).join('\n');
+    return `    waves: [\n${waveLines}\n    ],`;
+  }
+
   async exportToClipboard() {
     const snap = this.project.snapshot();
     const asciiRows = mapToAscii(snap.map);
@@ -83,6 +102,7 @@ export default class LevelSerializer {
     const wpCode = snap.waypoints.map(
       w => `      { x: ${w.x}, y: ${w.y} },`
     ).join('\n');
+    const wavesCode = this._formatWavesCode(snap.waves);
 
     const output = `  {
     name: '${snap.name}',
@@ -94,7 +114,7 @@ ${mapCode}
     waypoints: [
 ${wpCode}
     ],
-    waves: [],
+${wavesCode}
   },`;
 
     try {

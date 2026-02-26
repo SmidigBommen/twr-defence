@@ -26,6 +26,8 @@ export default class GameScene extends Phaser.Scene {
         const raw = localStorage.getItem('td_editor_temp_level');
         if (raw) {
           const custom = JSON.parse(raw);
+          const customWaves = custom.waves && custom.waves.length > 0
+            ? custom.waves : LEVELS[0].waves;
           level = {
             id: 99,
             name: custom.name || 'Custom Level',
@@ -33,7 +35,7 @@ export default class GameScene extends Phaser.Scene {
             lives: custom.lives || 20,
             map: custom.map,
             waypoints: custom.waypoints || [],
-            waves: LEVELS[0].waves, // default to level 1 waves
+            waves: customWaves,
           };
         }
       } catch (e) {

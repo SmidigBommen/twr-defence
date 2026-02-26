@@ -214,6 +214,168 @@
       color: var(--text-dim);
     }
     #statusbar .status-msg { color: var(--green); margin-left: auto; }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tab-bar button {
+      flex: 1;
+      background: var(--surface);
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 11px;
+      padding: 6px 0;
+      cursor: pointer;
+    }
+    .tab-bar button:hover { color: var(--text); }
+    .tab-bar button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      background: var(--surface2);
+    }
+    .tab-content {
+      flex: 1;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+    }
+    .tab-content.active { display: flex; }
+
+    /* Sprite library */
+    .sprite-category { padding: 2px 4px; }
+    .sprite-category-header {
+      font-size: 10px;
+      color: var(--accent);
+      padding: 4px 4px 2px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .sprite-category-header .arrow { font-size: 8px; }
+    .sprite-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      padding: 2px;
+    }
+    .sprite-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 3px 2px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      gap: 1px;
+    }
+    .sprite-card:hover { background: var(--surface2); border-color: var(--border); }
+    .sprite-card.selected { border-color: var(--accent); background: #3a3a5e; }
+    .sprite-card canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      background: #111;
+      border: 1px solid var(--border);
+    }
+    .sprite-card .sprite-name {
+      font-size: 8px;
+      color: var(--text-dim);
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+    .sprite-card .sprite-stat {
+      font-size: 7px;
+      color: var(--accent);
+    }
+    .sprite-card.has-override { border-color: var(--green); }
+    .sprite-import {
+      padding: 4px 8px;
+      display: flex;
+      gap: 4px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .sprite-import select {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 10px;
+      padding: 2px;
+      outline: none;
+    }
+
+    /* Wave editor */
+    .wave-editor-top {
+      padding: 4px 8px;
+      display: flex;
+      gap: 4px;
+    }
+    .wave-card {
+      border: 1px solid var(--border);
+      margin: 2px 4px;
+      background: var(--surface2);
+    }
+    .wave-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 3px 6px;
+      cursor: pointer;
+      font-size: 11px;
+      color: var(--text);
+    }
+    .wave-card-header:hover { color: var(--accent); }
+    .wave-card-body { padding: 2px 6px 4px; }
+    .wave-group {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 2px 4px;
+      align-items: center;
+      padding: 2px 0;
+      border-bottom: 1px solid #2a2a3e;
+    }
+    .wave-group:last-child { border-bottom: none; }
+    .wave-group label { font-size: 9px; color: var(--text-dim); }
+    .wave-group select,
+    .wave-group input[type="number"] {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 10px;
+      padding: 1px 3px;
+      outline: none;
+      width: 100%;
+    }
+    .wave-group input[type="number"] { width: 52px; }
+    .wave-group select:focus,
+    .wave-group input:focus { border-color: var(--accent); }
+    .wave-group canvas {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+    .btn-xs {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-family: monospace;
+      font-size: 9px;
+      padding: 1px 5px;
+      cursor: pointer;
+    }
+    .btn-xs:hover { color: var(--accent); border-color: var(--accent); }
+    .btn-xs.danger:hover { color: var(--red); border-color: var(--red); }
   </style>
 </head>
 <body>

@@ -11,9 +11,13 @@ import EraseTool from './tools/EraseTool.js';
 import FillTool from './tools/FillTool.js';
 import WaypointTool from './tools/WaypointTool.js';
 import Toolbar from './ui/Toolbar.js';
+import RightPanel from './ui/RightPanel.js';
 import TilePalette from './ui/TilePalette.js';
+import SpriteLibrary from './ui/SpriteLibrary.js';
+import WaveEditor from './ui/WaveEditor.js';
 import TopBar from './ui/TopBar.js';
 import StatusBar from './ui/StatusBar.js';
+import SpriteLoader from './core/SpriteLoader.js';
 
 export default class EditorApp {
   constructor() {
@@ -21,10 +25,11 @@ export default class EditorApp {
     this.project = new LevelProject();
     this.history = new HistoryManager(this.project);
     this.serializer = new LevelSerializer(this.project);
+    this.spriteLoader = new SpriteLoader();
 
     // Canvas & renderer
     const canvas = document.getElementById('map-canvas');
-    this.renderer = new MapRenderer(canvas, this.project);
+    this.renderer = new MapRenderer(canvas, this.project, this.spriteLoader);
 
     // Tools
     this.tools = {
@@ -35,9 +40,12 @@ export default class EditorApp {
     };
     this.activeTool = this.tools.paint;
 
-    // UI
+    // UI — tabbed right panel
+    this.rightPanel = new RightPanel(document.getElementById('right'));
     this.toolbar = new Toolbar(document.getElementById('toolbar'));
-    this.tilePalette = new TilePalette(document.getElementById('right'), this.project);
+    this.tilePalette = new TilePalette(this.rightPanel.getContent('map'), this.project);
+    this.spriteLibrary = new SpriteLibrary(this.rightPanel.getContent('sprites'), this.spriteLoader);
+    this.waveEditor = new WaveEditor(this.rightPanel.getContent('waves'), this.project, this.history, this.spriteLoader);
     this.topBar = new TopBar(document.getElementById('topbar'), this.project);
     this.statusBar = new StatusBar(document.getElementById('statusbar'));
 
@@ -78,10 +86,11 @@ export default class EditorApp {
     eventBus.on('project:export', () => this.serializer.exportToClipboard());
     eventBus.on('project:play', () => this.serializer.playInGame());
 
-    // Autosave to localStorage on every map/waypoint change
+    // Autosave to localStorage on every map/waypoint/wave change
     eventBus.on('map:changed', () => this.serializer.autosave());
     eventBus.on('waypoints:changed', () => this.serializer.autosave());
     eventBus.on('project:loaded', () => this.serializer.autosave());
+    eventBus.on('waves:changed', () => this.serializer.autosave());
 
     eventBus.on('action:autoTrace', () => this._autoTrace());
     eventBus.on('action:testPath', () => this._testPath());
@@ -153,8 +162,8 @@ export default class EditorApp {
 
   _bindKeyboard() {
     document.addEventListener('keydown', (e) => {
-      // Don't capture when typing in inputs
-      if (e.target.tagName === 'INPUT') return;
+      // Don't capture when typing in inputs or selects
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
 
       const key = e.key.toUpperCase();
 
