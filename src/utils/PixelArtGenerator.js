@@ -1,4 +1,5 @@
 import { COLORS, TILE_SIZE } from './constants.js';
+import { SPRITE_SIZES, ASSET_MANIFEST } from '../data/assetManifest.js';
 
 // ── Outline color constants ──────────────────────────────
 const OL = 0x1a1a2e;   // Standard dark outline
@@ -34,19 +35,79 @@ function makeGfx(scene) {
   return scene.make.graphics({ x: 0, y: 0, add: false });
 }
 
-function gen(g, key, w, h) {
-  g.generateTexture(key, w, h);
+// Generate texture at srcW×srcH, optionally rescale to tgtW×tgtH via nearest-neighbor
+function gen(g, key, srcW, srcH, tgtW, tgtH) {
+  if (!tgtW || tgtW === srcW) {
+    g.generateTexture(key, srcW, srcH);
+  } else {
+    const tmp = '__tmp_' + key;
+    g.generateTexture(tmp, srcW, srcH);
+    const canvas = g.scene.textures.createCanvas(key, tgtW, tgtH || tgtW);
+    const ctx = canvas.getContext();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(
+      g.scene.textures.get(tmp).getSourceImage(),
+      0, 0, srcW, srcH,
+      0, 0, tgtW, tgtH || tgtW
+    );
+    canvas.refresh();
+    g.scene.textures.remove(tmp);
+  }
   g.destroy();
 }
 
 // ── Main Entry ───────────────────────────────────────────
 
+// Unconditional generation (backward compat)
 export function generateTextures(scene) {
   generateTiles(scene);
   generateTowers(scene);
   generateEnemies(scene);
   generateProjectiles(scene);
   generateIcons(scene);
+  generateParticles(scene);
+}
+
+// Only generate textures that don't already exist (PNG overrides take priority)
+export function generateFallbackTextures(scene) {
+  const exists = (key) => scene.textures.exists(key);
+
+  if (!exists('tile_grass')) genTileGrass(scene);
+  if (!exists('tile_path')) genTilePath(scene);
+  if (!exists('tile_water')) genTileWater(scene);
+  if (!exists('tile_trees')) genTileTrees(scene, 'tile_trees', [[4, 3], [12, 10]]);
+  if (!exists('tile_trees2')) genTileTrees(scene, 'tile_trees2', [[12, 3], [4, 10]]);
+  if (!exists('tile_trees3')) genTileTrees(scene, 'tile_trees3', [[4, 5], [11, 5], [8, 11]]);
+  if (!exists('tile_rocks')) genTileRocks(scene);
+  if (!exists('tile_build')) genTileBuild(scene);
+  if (!exists('tile_castle')) genTileCastle(scene);
+
+  if (!exists('tower_arcane')) genTowerArcane(scene);
+  if (!exists('tower_flame')) genTowerFlame(scene);
+  if (!exists('tower_frost')) genTowerFrost(scene);
+  if (!exists('tower_barracks')) genTowerBarracks(scene);
+  if (!exists('tower_lightning')) genTowerLightning(scene);
+  if (!exists('tower_enchanter')) genTowerEnchanter(scene);
+
+  if (!exists('enemy_goblin')) genEnemyGoblin(scene);
+  if (!exists('enemy_wolf')) genEnemyWolf(scene);
+  if (!exists('enemy_troll')) genEnemyTroll(scene);
+  if (!exists('enemy_harpy')) genEnemyHarpy(scene);
+  if (!exists('enemy_wraith')) genEnemyWraith(scene);
+  if (!exists('enemy_priest')) genEnemyPriest(scene);
+  if (!exists('enemy_imp')) genEnemyImp(scene);
+  if (!exists('enemy_dragon')) genEnemyDragon(scene);
+  if (!exists('enemy_lich')) genEnemyLich(scene);
+
+  if (!exists('proj_arcane')) genProjArcane(scene);
+  if (!exists('proj_flame')) genProjFlame(scene);
+  if (!exists('proj_frost')) genProjFrost(scene);
+  if (!exists('proj_lightning')) genProjLightning(scene);
+
+  if (!exists('icon_heart')) genIconHeart(scene);
+  if (!exists('icon_coin')) genIconCoin(scene);
+
+  // Particles are always procedural
   generateParticles(scene);
 }
 
@@ -335,7 +396,7 @@ function genTowerArcane(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(cx - 2, 8, 0.6);
 
-  gen(g, 'tower_arcane', S, S);
+  gen(g, 'tower_arcane', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
 }
 
 function genTowerFlame(scene) {
@@ -372,7 +433,7 @@ function genTowerFlame(scene) {
   g.fillStyle(0xffffff);
   g.fillTriangle(cx, 8, cx - 1, 13, cx + 1, 13);
 
-  gen(g, 'tower_flame', S, S);
+  gen(g, 'tower_flame', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
 }
 
 function genTowerFrost(scene) {
@@ -402,7 +463,7 @@ function genTowerFrost(scene) {
   g.fillTriangle(cx - 4, 14, cx - 7, 18, cx - 3, 18);
   g.fillTriangle(cx + 4, 14, cx + 3, 18, cx + 7, 18);
 
-  gen(g, 'tower_frost', S, S);
+  gen(g, 'tower_frost', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
 }
 
 function genTowerBarracks(scene) {
@@ -441,7 +502,7 @@ function genTowerBarracks(scene) {
   g.fillStyle(0xe74c3c);
   g.fillRect(cx - 0.5, 13, 1, 2.5);
 
-  gen(g, 'tower_barracks', S, S);
+  gen(g, 'tower_barracks', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
 }
 
 function genTowerLightning(scene) {
@@ -473,7 +534,7 @@ function genTowerLightning(scene) {
   g.fillCircle(cx, 10, 1.2);
   g.fillCircle(cx, 13, 1);
 
-  gen(g, 'tower_lightning', S, S);
+  gen(g, 'tower_lightning', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
 }
 
 function genTowerEnchanter(scene) {
@@ -520,7 +581,7 @@ function genTowerEnchanter(scene) {
   g.fillCircle(cx, 7, 0.8);
   g.fillCircle(cx, 17, 0.8);
 
-  gen(g, 'tower_enchanter', S, S);
+  gen(g, 'tower_enchanter', S, S, SPRITE_SIZES.tower, SPRITE_SIZES.tower);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -577,7 +638,7 @@ function genEnemyGoblin(scene) {
   oRect(g, 7, 16, 2, 3, 0x3e8948, OL);
   oRect(g, 11, 16, 2, 3, 0x3e8948, OL);
 
-  gen(g, 'enemy_goblin', S, S);
+  gen(g, 'enemy_goblin', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyWolf(scene) {
@@ -637,7 +698,7 @@ function genEnemyWolf(scene) {
   g.fillRect(12.5, 13, 1.5, 4);
   g.fillRect(15.5, 13, 1.5, 4);
 
-  gen(g, 'enemy_wolf', S, S);
+  gen(g, 'enemy_wolf', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyTroll(scene) {
@@ -683,7 +744,7 @@ function genEnemyTroll(scene) {
   g.fillTriangle(cx - 2, 7, cx - 1, 8.5, cx, 7);
   g.fillTriangle(cx + 2, 7, cx + 1, 8.5, cx, 7);
 
-  gen(g, 'enemy_troll', S, S);
+  gen(g, 'enemy_troll', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyHarpy(scene) {
@@ -743,7 +804,7 @@ function genEnemyHarpy(scene) {
   g.lineTo(cx + 3, 19);
   g.strokePath();
 
-  gen(g, 'enemy_harpy', S, S);
+  gen(g, 'enemy_harpy', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyWraith(scene) {
@@ -798,7 +859,7 @@ function genEnemyWraith(scene) {
   g.fillStyle(0xa8d8ea, 0.5);
   g.fillRect(cx - 1, 9, 2, 6);
 
-  gen(g, 'enemy_wraith', S, S);
+  gen(g, 'enemy_wraith', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyPriest(scene) {
@@ -859,7 +920,7 @@ function genEnemyPriest(scene) {
   g.fillStyle(0xff6b6b);
   g.fillCircle(sx - 0.5, 2.5, 0.8);
 
-  gen(g, 'enemy_priest', S, S);
+  gen(g, 'enemy_priest', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyImp(scene) {
@@ -921,7 +982,7 @@ function genEnemyImp(scene) {
   g.lineTo(cx + 8, 12);
   g.strokePath();
 
-  gen(g, 'enemy_imp', S, S);
+  gen(g, 'enemy_imp', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyDragon(scene) {
@@ -979,7 +1040,7 @@ function genEnemyDragon(scene) {
   oRect(g, 6, 15, 3, 4, 0x8b0000, OL);
   oRect(g, 11, 15, 3, 4, 0x8b0000, OL);
 
-  gen(g, 'enemy_dragon', S, S);
+  gen(g, 'enemy_dragon', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 function genEnemyLich(scene) {
@@ -1053,7 +1114,7 @@ function genEnemyLich(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(sx - 0.5, 1.5, 0.6);
 
-  gen(g, 'enemy_lich', S, S);
+  gen(g, 'enemy_lich', S, S, SPRITE_SIZES.enemy, SPRITE_SIZES.enemy);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1079,7 +1140,7 @@ function genProjArcane(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c - 0.5, c - 0.5, 0.5);
 
-  gen(g, 'proj_arcane', S, S);
+  gen(g, 'proj_arcane', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
 }
 
 function genProjFlame(scene) {
@@ -1094,7 +1155,7 @@ function genProjFlame(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c - 0.3, c - 0.3, 0.5);
 
-  gen(g, 'proj_flame', S, S);
+  gen(g, 'proj_flame', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
 }
 
 function genProjFrost(scene) {
@@ -1114,7 +1175,7 @@ function genProjFrost(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c, c, 1);
 
-  gen(g, 'proj_frost', S, S);
+  gen(g, 'proj_frost', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
 }
 
 function genProjLightning(scene) {
@@ -1139,7 +1200,7 @@ function genProjLightning(scene) {
   g.fillStyle(0xffffff);
   g.fillCircle(c, c, 1);
 
-  gen(g, 'proj_lightning', S, S);
+  gen(g, 'proj_lightning', S, S, SPRITE_SIZES.projectile, SPRITE_SIZES.projectile);
 }
 
 // ══════════════════════════════════════════════════════════
@@ -1171,7 +1232,7 @@ function genIconHeart(scene) {
   g.fillStyle(0xff6b6b);
   g.fillCircle(cx - 2, 3.5, 1);
 
-  gen(g, 'icon_heart', S, S);
+  gen(g, 'icon_heart', S, S, SPRITE_SIZES.icon, SPRITE_SIZES.icon);
 }
 
 function genIconCoin(scene) {
@@ -1197,7 +1258,7 @@ function genIconCoin(scene) {
   g.fillStyle(0xffeaa7);
   g.fillCircle(cx - 1.5, cy - 1.5, 1);
 
-  gen(g, 'icon_coin', S, S);
+  gen(g, 'icon_coin', S, S, SPRITE_SIZES.icon, SPRITE_SIZES.icon);
 }
 
 // ══════════════════════════════════════════════════════════

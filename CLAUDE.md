@@ -9,7 +9,7 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - **Build Tool**: Vite
 - **Language**: JavaScript (ES modules)
 - **Leaderboard**: localStorage
-- **Art**: Procedural cartoon-style sprites via Phaser Graphics API
+- **Art**: Spritey PNG overrides + procedural cartoon-style fallback via Phaser Graphics API
 
 ## Game Design
 
@@ -18,7 +18,7 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - Tile size: 16x16 pixels
 - Phaser pixelArt mode enabled (nearest-neighbor scaling)
 - Map grid: 30x17 tiles (480x272) with HUD overlay
-- Sprite sizes: tiles 16x16, towers 24x24, enemies 20x20, projectiles 8x8, icons 12x12
+- Sprite sizes: tiles 16x16, towers 32x32, enemies 32x32, projectiles 16x16, icons 16x16 (Spritey-compatible)
 
 ### Tower Types (6)
 1. **Arcane Turret** - Rapid fire magic bolts, single target, cheap
@@ -62,17 +62,29 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - `src/scenes/` - Boot, Menu, LevelSelect, Game, GameOver scenes
 - `src/entities/` - Tower, Enemy, Projectile classes
 - `src/managers/` - Wave, Economy, Leaderboard managers
-- `src/data/` - Tower stats, enemy stats, level definitions
+- `src/data/` - Tower stats, enemy stats, level definitions, asset manifest
 - `src/utils/` - Constants, cartoon sprite generator, path tracer
 
-### Art Style & Sprite Generation
-All sprites are generated procedurally at boot time in `src/utils/PixelArtGenerator.js`
-using Phaser's Graphics API (`fillCircle`, `fillRect`, `fillRoundedRect`, `fillTriangle`, etc.).
-No external image assets are used.
+### Art Style & Asset Pipeline
+Sprites are loaded as PNGs from `public/assets/` when present, falling back to procedural
+generation in `src/utils/PixelArtGenerator.js`. This supports importing hand-drawn pixel
+art from [Spritey](https://github.com/SmidigBommen/spritey) (16x16 and 32x32 PNGs).
 
-**Cartoon technique:** Each shape is drawn twice — first slightly larger in a dark outline
+**Asset directory structure:**
+- `public/assets/tiles/` — 16x16 tile PNGs
+- `public/assets/towers/` — 32x32 tower PNGs
+- `public/assets/enemies/` — 32x32 enemy PNGs
+- `public/assets/projectiles/` — 16x16 projectile PNGs
+- `public/assets/icons/` — 16x16 icon PNGs
+
+**Override mechanism:** `BootScene.preload()` loads PNGs listed in `src/data/assetManifest.js`.
+`BootScene.create()` calls `generateFallbackTextures()` which only generates textures for
+keys that weren't loaded from PNGs. Particles are always procedural.
+
+**Procedural fallback technique:** Each shape is drawn twice — first slightly larger in a dark outline
 color (`0x1a1a2e`), then filled at normal size with a vibrant flat color. Helper functions
-`oCircle`, `oRect`, and `oRRect` handle this outline+fill pattern.
+`oCircle`, `oRect`, and `oRRect` handle this outline+fill pattern. Procedural art is drawn at
+original sizes then rescaled to target sizes via nearest-neighbor canvas scaling.
 
 **Texture keys (38 total):**
 - 9 terrain tiles: `tile_grass`, `tile_path`, `tile_water`, `tile_trees`, `tile_trees2`, `tile_trees3`, `tile_rocks`, `tile_build`, `tile_castle`
@@ -82,8 +94,8 @@ color (`0x1a1a2e`), then filled at normal size with a vibrant flat color. Helper
 - 2 UI icons: `icon_heart`, `icon_coin`
 - 8 particles: `particle_magic`, `particle_fire`, `particle_ice`, `particle_lightning`, `particle_heal`, `particle_death`, `particle_gold`, `range_circle`
 
-**Contract:** `generateTextures(scene)` is the only export. All game code references
-sprites by texture key string — changing art means only modifying this one file.
+**Contract:** All game code references sprites by texture key string. To override a sprite,
+drop a PNG named `<key>.png` into the matching `public/assets/<category>/` directory.
 
 ### Game Feel ("Juice")
 - Screen shake on enemy kills
@@ -112,3 +124,64 @@ sprites by texture key string — changing art means only modifying this one fil
 - Focus over information overload (Defender's Quest philosophy)
 - Progressive complexity (sawtooth difficulty curve)
 - Meaningful tower variety (rock/paper/scissors design)
+
+## Conventions
+
+- Keep files small and focused — one class per file
+- No build step, no transpilation, no bundler
+- Use CSS custom properties for theming (all in `:root` in style.css)
+- Tools should never modify UI directly — emit events instead
+- Prefer `const` over `let`, no `var`
+- Use a MVP approach
+- Use well known principles and patterns in your code
+- Create a plan.md file with the implementation plan before starting development
+- Never add Co-Authored-By or any AI attribution to commit messages
+
+## IMPORTANT PROGRAMMING RULES:
+- Minimize code, be DRY
+  - Code is liability, logic is an opportunity for bugs
+  - We should have as little code as necessary to solve the problem
+  - Duplicated logic leads to drift and inconsistency which leads to tech debt, bugs and progress slowdown
+  - Important for both source- and test-code
+    - Examples:
+      - Reusable functions, fixtures, types
+      - Prefer table-driven/parameterized tests
+      - Create consts and variables for strings/numbers when they are repeated
+- Code should be clear and easily readable
+- Don't prematurely build abstractions
+- Use the right algorithms and datastructures for the problem
+- Fix root causes (no band-aid solutions)
+- Minimize external dependencies
+- Be defensive
+  - Examples:
+    - Validation for arguments and parameters
+    - Bounds and limits for sizes, parallelism etc
+- Fail fast/early
+- Return errors for user errors, use assertions for critical invariants and programmer errors
+- Prefer pure code - easily testable
+- Domain models should be free from infrastructure and dependencies
+- Parse, dont validate. Prefer representations that prevent invalid states by design
+- Be performant
+  - Avoid unneeded work and allocations
+  - Non-pessimize (don't write slow code for no reason)
+  - Examples:
+    - Minimize heap allocations (preallocate, reuse allocations, avoid closures, use stack, escape-analysis-friendly code)
+    - CPU cache friendly datastructures, algorithms and layout
+    - Minimize contention in parallel code
+    - Pass by value for small arguments (~16 bytes or less)
+    - Batching operations
+- Comments should explain _why_ something is done, never _what_ is being done
+  - Avoid obvious comments, we only want comments that explain non-obvious reasoning
+  - Should have comments: "magic numbers/strings" and non-obvious configuration values
+- Strict linting and static analysis
+  - Don't suppress lints or warnings without a very good reason
+- Warnings should be treated as errors
+  - Suppressions should be documented and well-reasoned
+
+## IMPORTANT BEHAVIORAL RULES:
+- In all interactions, be extremely concise
+- Be direct and straightforward in all responses
+- Avoid overly positive or enthusiastic language
+- Challenge assumptions and point out potential issues or flaws
+- Provide constructive criticism
+- Verify assumptions before proceeding

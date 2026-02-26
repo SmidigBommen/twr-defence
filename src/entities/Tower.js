@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, TARGET_MODE, TILE_SIZE } from '../utils/constants.js';
+import { COLORS, TARGET_MODE, TILE_SIZE, SPRITE_SIZES } from '../utils/constants.js';
 import { TOWER_DATA } from '../data/towers.js';
 import Projectile from './Projectile.js';
 
@@ -33,7 +33,8 @@ export default class Tower {
     this.baseColor = typeColors[type] || 0xffffff;
 
     // Colored base circle (always visible, shows tower type)
-    this.baseCircle = scene.add.circle(this.x, this.y + 2, 8, this.baseColor, 0.25);
+    const baseRadius = Math.round(SPRITE_SIZES.TOWER / 3); // ~10px
+    this.baseCircle = scene.add.circle(this.x, this.y + 2, baseRadius, this.baseColor, 0.25);
     this.baseCircle.setDepth(4);
 
     // Create sprite
@@ -230,7 +231,7 @@ export default class Tower {
     const proj = new Projectile(
       this.scene,
       this.x,
-      this.y - 4, // Shoot from top of tower
+      this.y - SPRITE_SIZES.TOWER / 4, // Shoot from top of tower
       this.target,
       this.data,
       this.level,
@@ -259,7 +260,7 @@ export default class Tower {
     currentTarget.takeDamage(currentDamage);
 
     // Draw lightning bolt
-    this.drawLightning(this.x, this.y - 4, currentTarget.x, currentTarget.y);
+    this.drawLightning(this.x, this.y - SPRITE_SIZES.TOWER / 4, currentTarget.x, currentTarget.y);
 
     // Chain to nearby enemies
     for (let i = 1; i < chainCount; i++) {

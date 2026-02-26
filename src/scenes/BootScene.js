@@ -1,16 +1,28 @@
 import Phaser from 'phaser';
-import { generateTextures } from '../utils/PixelArtGenerator.js';
+import { ASSET_MANIFEST } from '../data/assetManifest.js';
+import { generateFallbackTextures } from '../utils/PixelArtGenerator.js';
 
 export default class BootScene extends Phaser.Scene {
   constructor() {
     super('BootScene');
+    this.failedKeys = new Set();
+  }
+
+  preload() {
+    // Try loading PNGs for all manifest entries; missing files are expected
+    this.load.on('loaderror', (file) => {
+      this.failedKeys.add(file.key);
+    });
+
+    for (const entry of ASSET_MANIFEST) {
+      this.load.image(entry.key, entry.path);
+    }
   }
 
   create() {
-    // Generate all cartoon-style textures
-    generateTextures(this);
+    // Procedurally generate any textures that weren't loaded from PNGs
+    generateFallbackTextures(this);
 
-    // Quick transition to menu
     this.cameras.main.fadeIn(500);
     this.time.delayedCall(600, () => {
       this.scene.start('MenuScene');

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { COLORS, TILE_SIZE } from '../utils/constants.js';
+import { COLORS, TILE_SIZE, SPRITE_SIZES } from '../utils/constants.js';
 import { ENEMY_DATA, getScaledEnemyStats } from '../data/enemies.js';
 
 export default class Enemy {
@@ -51,7 +51,11 @@ export default class Enemy {
     // Flying enemies bob up and down and have a shadow
     if (this.isFlying) {
       this.flyOffset = 0;
-      this.shadow = scene.add.ellipse(this.x, this.y + 8, 10, 4, 0x000000, 0.3);
+      this.shadow = scene.add.ellipse(
+        this.x, this.y + 8,
+        SPRITE_SIZES.ENEMY * 0.35, SPRITE_SIZES.ENEMY * 0.15,
+        0x000000, 0.3
+      );
       this.shadow.setDepth(9);
     }
 
@@ -62,14 +66,15 @@ export default class Enemy {
 
     // Health bar (compact)
     this.hpBarWidth = this.isBoss ? 16 : 10;
-    this.healthBarBg = scene.add.rectangle(this.x, this.y - 10 * this.size, this.hpBarWidth, 1.5, COLORS.HEALTH_BG);
+    const hpBarY = this.y - (SPRITE_SIZES.ENEMY / 2) * this.size;
+    this.healthBarBg = scene.add.rectangle(this.x, hpBarY, this.hpBarWidth, 1.5, COLORS.HEALTH_BG);
     this.healthBarBg.setDepth(15);
-    this.healthBar = scene.add.rectangle(this.x, this.y - 10 * this.size, this.hpBarWidth, 1.5, COLORS.HEALTH_GREEN);
+    this.healthBar = scene.add.rectangle(this.x, hpBarY, this.hpBarWidth, 1.5, COLORS.HEALTH_GREEN);
     this.healthBar.setDepth(16);
 
     // Boss indicator
     if (this.isBoss) {
-      this.bossGlow = scene.add.circle(this.x, this.y, 12 * this.size, 0xff0000, 0.15);
+      this.bossGlow = scene.add.circle(this.x, this.y, SPRITE_SIZES.ENEMY * 0.4 * this.size, 0xff0000, 0.15);
       this.bossGlow.setDepth(9);
     }
 
@@ -168,7 +173,7 @@ export default class Enemy {
 
     // Health bar
     const hpRatio = this.hp / this.maxHp;
-    const barY = this.y - 10 * this.size;
+    const barY = this.y - (SPRITE_SIZES.ENEMY / 2) * this.size;
     const halfBar = this.hpBarWidth / 2;
     this.healthBarBg.setPosition(this.x, barY);
     this.healthBar.setPosition(this.x - halfBar * (1 - hpRatio), barY);

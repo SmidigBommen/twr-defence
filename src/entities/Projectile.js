@@ -16,7 +16,7 @@ export default class Projectile {
     const textureKey = towerData.projectile || 'proj_arcane';
     this.sprite = scene.add.image(x, y, textureKey);
     this.sprite.setDepth(12);
-    this.sprite.setScale(0.8);
+    this.sprite.setScale(0.5); // 16px × 0.5 = 8px display
 
     // Trail particles
     this.trailTimer = 0;

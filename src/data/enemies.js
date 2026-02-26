@@ -39,7 +39,7 @@ export const ENEMY_DATA = {
     isStealth: false,
     abilities: ['regenerate'],
     regenRate: 2, // HP per second
-    size: 2,
+    size: 1.25, // 1.25 × 32 = 40px (preserves old 2 × 20 = 40px)
   },
 
   [ENEMY_TYPES.HARPY]: {
@@ -94,7 +94,7 @@ export const ENEMY_DATA = {
     isFlying: false,
     isStealth: false,
     abilities: [],
-    size: 0.7,
+    size: 0.5, // 0.5 × 32 = 16px (preserves old 0.7 × 20 = 14px, rounded up)
   },
 
   [ENEMY_TYPES.DRAGON]: {
@@ -108,7 +108,7 @@ export const ENEMY_DATA = {
     isStealth: false,
     abilities: ['fireBreath'],
     isBoss: true,
-    size: 3,
+    size: 1.9, // 1.9 × 32 ≈ 61px (preserves old 3 × 20 = 60px)
   },
 
   [ENEMY_TYPES.LICH]: {
@@ -122,7 +122,7 @@ export const ENEMY_DATA = {
     isStealth: false,
     abilities: ['summon', 'shield'],
     isBoss: true,
-    size: 2.5,
+    size: 1.6, // 1.6 × 32 ≈ 51px (preserves old 2.5 × 20 = 50px)
   },
 };
 

@@ -5,6 +5,15 @@ export const TILE_SIZE = 16;
 export const GRID_COLS = 30;
 export const GRID_ROWS = 17;
 
+// Sprite size targets (Spritey-compatible: 16x16 or 32x32)
+export const SPRITE_SIZES = {
+  TILE: 16,
+  TOWER: 32,
+  ENEMY: 32,
+  PROJECTILE: 16,
+  ICON: 16,
+};
+
 // Map cell types
 export const CELL = {
   EMPTY: 0,
