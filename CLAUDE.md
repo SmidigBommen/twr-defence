@@ -65,7 +65,7 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - `src/data/` - Tower stats, enemy stats, level definitions, asset manifest
 - `src/utils/` - Constants, cartoon sprite generator, path tracer
 - `src/editor/` - Standalone level editor (EditorApp, tools, UI panels, core)
-- `plan.md` - current state and roadmap. Update this before starting new work.
+- `plan.md` - gaps and roadmap only (no "what's built" — that lives in CLAUDE.md). Update in the same commit as the work.
 
 ### Custom Monster System
 Custom enemy types can be defined in the level editor and saved with levels.
@@ -196,6 +196,12 @@ drop a PNG named `<key>.png` into the matching `public/assets/<category>/` direc
   - Don't suppress lints or warnings without a very good reason
 - Warnings should be treated as errors
   - Suppressions should be documented and well-reasoned
+
+## Documentation Rules
+- Before starting any feature: verify `plan.md` gaps list is accurate
+- After completing any feature: update `plan.md` (remove the gap if closed) and the relevant `CLAUDE.md` architecture section in the **same commit** as the code
+- `plan.md` only tracks what is NOT done — completed work is deleted from it, not archived
+- `CLAUDE.md` is the single source of truth for what's built and how it works
 
 ## IMPORTANT BEHAVIORAL RULES:
 - In all interactions, be extremely concise
