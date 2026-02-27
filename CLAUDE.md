@@ -64,7 +64,25 @@ Built with Phaser 3, cartoon-style procedural graphics, persistent local leaderb
 - `src/managers/` - Wave, Economy, Leaderboard managers
 - `src/data/` - Tower stats, enemy stats, level definitions, asset manifest
 - `src/utils/` - Constants, cartoon sprite generator, path tracer
-- `plan.md` - full plan and milestones in the project. This file is updated before coding starts.
+- `src/editor/` - Standalone level editor (EditorApp, tools, UI panels, core)
+- `plan.md` - current state and roadmap. Update this before starting new work.
+
+### Custom Monster System
+Custom enemy types can be defined in the level editor and saved with levels.
+
+- **Data**: `LevelProject.customEnemies[]` — array of defs, included in snapshot/restore/JSON
+- **Editor**: `MonsterEditor.js` — "Monsters" tab, edit name/sprite/stats/traits/abilities
+- **Wave editor**: custom enemies appear under "Custom" optgroup in enemy type dropdown
+- **Runtime**: `GameScene` builds `customDefs` map (`id→def`) from `level.customEnemies`, passes to `WaveManager` → `Enemy`
+- **Stat lookup**: `getScaledEnemyStats(type, wave, customDefs)` checks customDefs before ENEMY_DATA
+- **Custom enemy IDs**: `cx_<timestamp>` — never collide with built-in type strings
+- **Abilities supported**: `regenerate` (regenRate HP/s), `heal` (healAmount/healRadius/healRate)
+
+### Wave Preview
+Before each wave, a strip of enemy cards is shown bottom-left of the game screen.
+- Sprite icon + count (9px text with stroke), trait badges (~=flying, ?=stealth), red tint for bosses
+- Implemented in `GameScene.createWavePreview()` / `updateWavePreview()`
+- Shown between waves, hidden on wave start, handles custom enemies via `_enemyStats()`
 
 ### Art Style & Asset Pipeline
 Sprites are loaded as PNGs from `public/assets/` when present, falling back to procedural
