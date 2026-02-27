@@ -1,0 +1,49 @@
+Arcane Defenders — Third-Party Asset Credits
+=============================================
+
+Enemy Sprites (public/assets/enemies/)
+---------------------------------------
+"Tiny Creatures" by Clint Bellanger
+License: CC0 1.0 Universal (Public Domain)
+Source: https://opengameart.org/content/tiny-creatures
+No attribution required.
+
+Tiles used:
+  enemy_goblin   → tile_0011
+  enemy_wolf     → tile_0093
+  enemy_troll    → tile_0043
+  enemy_harpy    → tile_0037
+  enemy_wraith   → tile_0050
+  enemy_priest   → tile_0066
+  enemy_imp      → tile_0040
+  enemy_dragon   → tile_0034
+  enemy_lich     → tile_0095
+
+
+Terrain Tiles (public/assets/tiles/)
+--------------------------------------
+"LPC Tile Atlas" — Liberated Pixel Cup assets
+License: CC-BY-SA 3.0 / GPL 3.0
+Source: https://opengameart.org/content/lpc-tile-atlas
+
+Authors (from Attribution.txt bundled with the pack):
+  Lanea Zimmerman (Sharm)       — grass, dirt, water, treetop, rock, waterfall tiles
+  Stephen Challener (Redshrike) — character spritesheets
+  Casper Nilsson                — additional tiles (GPL 3.0)
+  Daniel Eddeland               — plants and environment tiles (GPL 3.0)
+  Johann Charlot                — additional tileset (LGPL 3.0)
+  Skyler Robert Colladay        — additional art
+  Daniel Armstrong (HughSpectrum) — castle walls and floors
+
+Attribution required. Derivative works must use CC-BY-SA 3.0 or GPL 3.0.
+
+Tiles used (col, row from terrain_atlas.png, 32x32 grid):
+  tile_grass   → c1  r20
+  tile_path    → c7  r19
+  tile_water   → c4  r14
+  tile_trees   → c24 r12  (composited on grass)
+  tile_trees2  → c25 r12  (composited on grass)
+  tile_trees3  → c25 r13  (composited on grass)
+  tile_rocks   → c20 r22
+  tile_build   → c19 r22
+  tile_castle  → c18 r23
