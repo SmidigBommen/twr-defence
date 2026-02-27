@@ -3,7 +3,7 @@ import { COLORS, TILE_SIZE, SPRITE_SIZES } from '../utils/constants.js';
 import { ENEMY_DATA, getScaledEnemyStats } from '../data/enemies.js';
 
 export default class Enemy {
-  constructor(scene, type, waypoints, waveNumber) {
+  constructor(scene, type, waypoints, waveNumber, customDefs = {}) {
     this.scene = scene;
     this.type = type;
     this.waypoints = waypoints;
@@ -11,8 +11,8 @@ export default class Enemy {
     this.alive = true;
     this.reachedEnd = false;
 
-    // Get scaled stats
-    const stats = getScaledEnemyStats(type, waveNumber);
+    // Get scaled stats (custom defs override built-in types)
+    const stats = getScaledEnemyStats(type, waveNumber, customDefs);
     this.maxHp = stats.hp;
     this.hp = stats.hp;
     this.speed = stats.speed;

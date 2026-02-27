@@ -18,6 +18,7 @@ export default class WaveEditor {
     this._build();
     eventBus.on('project:loaded', () => this._rebuild());
     eventBus.on('sprites:changed', () => this._refreshPreviews());
+    eventBus.on('monsters:changed', () => this._rebuild());
   }
 
   _build() {
@@ -115,12 +116,29 @@ export default class WaveEditor {
 
     // Row 1: type select + preview + remove
     const typeSelect = document.createElement('select');
+    // Built-in enemies
+    const builtinGrp = document.createElement('optgroup');
+    builtinGrp.label = 'Built-in';
     for (const opt of ENEMY_OPTIONS) {
       const o = document.createElement('option');
       o.value = opt.id;
       o.textContent = opt.name;
       if (opt.id === group.type) o.selected = true;
-      typeSelect.appendChild(o);
+      builtinGrp.appendChild(o);
+    }
+    typeSelect.appendChild(builtinGrp);
+    // Custom enemies from project
+    if (this.project.customEnemies && this.project.customEnemies.length > 0) {
+      const customGrp = document.createElement('optgroup');
+      customGrp.label = 'Custom';
+      for (const def of this.project.customEnemies) {
+        const o = document.createElement('option');
+        o.value = def.id;
+        o.textContent = def.name;
+        if (def.id === group.type) o.selected = true;
+        customGrp.appendChild(o);
+      }
+      typeSelect.appendChild(customGrp);
     }
     typeSelect.addEventListener('change', () => {
       this._pushAndModify(waveIndex, groupIndex, 'type', typeSelect.value);
@@ -184,8 +202,10 @@ export default class WaveEditor {
     const ctx = canvas.getContext('2d');
     ctx.imageSmoothingEnabled = false;
     ctx.clearRect(0, 0, 16, 16);
-    const data = ENEMY_DATA[enemyType];
-    const spriteKey = data?.sprite;
+    // Look up sprite key: check built-ins first, then custom enemies
+    const builtIn = ENEMY_DATA[enemyType];
+    const custom = this.project.customEnemies?.find(d => d.id === enemyType);
+    const spriteKey = builtIn?.sprite ?? custom?.sprite;
     const img = spriteKey ? this.spriteLoader.get(spriteKey) : null;
     if (img) {
       ctx.drawImage(img, 0, 0, 16, 16);

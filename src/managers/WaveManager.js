@@ -1,10 +1,11 @@
 import Enemy from '../entities/Enemy.js';
 
 export default class WaveManager {
-  constructor(scene, waves, waypoints) {
+  constructor(scene, waves, waypoints, customDefs = {}) {
     this.scene = scene;
     this.waves = waves;
     this.waypoints = waypoints;
+    this.customDefs = customDefs;
     this.currentWave = 0;
     this.waveActive = false;
     this.spawning = false;
@@ -20,6 +21,10 @@ export default class WaveManager {
 
   getCurrentWaveNumber() {
     return this.currentWave + 1;
+  }
+
+  getNextWave() {
+    return this.waves[this.currentWave] || null;
   }
 
   startNextWave() {
@@ -91,7 +96,8 @@ export default class WaveManager {
       this.scene,
       type,
       this.waypoints,
-      this.currentWave + 1
+      this.currentWave + 1,
+      this.customDefs
     );
     this.scene.enemies.push(enemy);
   }

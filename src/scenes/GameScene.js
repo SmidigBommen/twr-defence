@@ -6,6 +6,7 @@ import Tower from '../entities/Tower.js';
 import WaveManager from '../managers/WaveManager.js';
 import EconomyManager from '../managers/EconomyManager.js';
 import { tracePathWaypoints } from '../utils/pathTracer.js';
+import { ENEMY_DATA } from '../data/enemies.js';
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -70,9 +71,15 @@ export default class GameScene extends Phaser.Scene {
     const waypoints = tracePathWaypoints(level.map);
     this.waypoints = waypoints.length >= 2 ? waypoints : level.waypoints;
 
+    // Build custom enemy lookup map (id → def) for this level
+    this.customDefs = {};
+    for (const def of (level.customEnemies || [])) {
+      this.customDefs[def.id] = def;
+    }
+
     // Managers
     this.economy = new EconomyManager(this, level.startingGold, level.lives);
-    this.waveManager = new WaveManager(this, level.waves, this.waypoints);
+    this.waveManager = new WaveManager(this, level.waves, this.waypoints, this.customDefs);
 
     // Render map
     this.renderMap(level.map);
@@ -85,6 +92,9 @@ export default class GameScene extends Phaser.Scene {
 
     // Tower build panel
     this.createBuildPanel();
+
+    // Wave preview (incoming enemies before each wave)
+    this.createWavePreview();
 
     // Tower info panel (hidden)
     this.towerInfoPanel = null;
@@ -770,7 +780,8 @@ export default class GameScene extends Phaser.Scene {
     this.updateHUD();
   }
 
-  onWaveStarted(waveNum) {
+  onWaveStarted(_waveNum) {
+    if (this.wavePreview) this.wavePreview.setVisible(false);
     // Wave announcement
     const text = this.add.text(GAME_WIDTH / 2, GAME_HEIGHT / 2 - 20, `WAVE ${waveNum}`, {
       fontSize: '14px',
@@ -834,10 +845,15 @@ export default class GameScene extends Phaser.Scene {
     this.startWaveBtn.bg.setVisible(true);
     this.startWaveBtn.text.setVisible(true);
 
+    // Show incoming wave preview for the next wave
+    this.updateWavePreview();
+    if (this.wavePreview) this.wavePreview.setVisible(true);
+
     this.updateHUD();
   }
 
   onAllWavesComplete() {
+    if (this.wavePreview) this.wavePreview.setVisible(false);
     this.economy.completeLevel();
     this.gameOver = true;
 
@@ -880,6 +896,100 @@ export default class GameScene extends Phaser.Scene {
         });
       });
     }
+  }
+
+  // --- Wave preview ---
+
+  createWavePreview() {
+    this.wavePreview = this.add.container(0, 0);
+    this.wavePreview.setDepth(32);
+    this.updateWavePreview();
+  }
+
+  updateWavePreview() {
+    if (!this.wavePreview) return;
+    this.wavePreview.removeAll(true);
+
+    const wave = this.waveManager.getNextWave();
+    if (!wave) return;
+
+    // Sum counts per enemy type (groups with same type merge)
+    const counts = new Map();
+    for (const group of wave.enemies) {
+      counts.set(group.type, (counts.get(group.type) || 0) + group.count);
+    }
+
+    const CARD_W = 28;
+    const CARD_H = 34; // icon (16) + gap (4) + text (9) + padding (5)
+    const GAP = 3;
+    const PAD = 4;
+    const numTypes = counts.size;
+    const stripW = numTypes * CARD_W + (numTypes - 1) * GAP + PAD * 2;
+    const stripX = 8;
+    const stripY = GAME_HEIGHT - 36;
+
+    // Outer strip background
+    const bg = this.add.rectangle(
+      stripX + stripW / 2, stripY,
+      stripW, CARD_H + 4,
+      0x05050f, 0.88
+    );
+    bg.setStrokeStyle(1, 0x3a3a5c, 0.9);
+    this.wavePreview.add(bg);
+
+    let x = stripX + PAD;
+    for (const [type, count] of counts) {
+      const stats = this._enemyStats(type);
+
+      // Card background — red tint for bosses
+      const cardColor = stats?.isBoss ? 0x2a0a0a : 0x1a1a2e;
+      const borderColor = stats?.isBoss ? 0x8b1a1a : 0x3a3a5c;
+      const card = this.add.rectangle(x + CARD_W / 2, stripY, CARD_W, CARD_H, cardColor, 0.95);
+      card.setStrokeStyle(1, borderColor, 0.9);
+      this.wavePreview.add(card);
+
+      const cx = x + CARD_W / 2;
+
+      // Sprite icon — upper portion of card
+      const spriteKey = stats?.sprite || 'enemy_goblin';
+      const icon = this.add.image(cx, stripY - 8, spriteKey);
+      icon.setDisplaySize(16, 16);
+      if (stats?.isStealth) icon.setAlpha(0.45);
+      this.wavePreview.add(icon);
+
+      // Count — same size/style as HUD gold text, below icon
+      const countTxt = this.add.text(cx, stripY + 9, `×${count}`, {
+        fontSize: '9px',
+        fontFamily: 'monospace',
+        color: '#ecf0f1',
+        stroke: '#000000',
+        strokeThickness: 2,
+      }).setOrigin(0.5);
+      this.wavePreview.add(countTxt);
+
+      // Trait badges — top corners
+      if (stats?.isFlying) {
+        this.wavePreview.add(
+          this.add.text(x + CARD_W - 2, stripY - CARD_H / 2 + 1, '~', {
+            fontSize: '5px', fontFamily: 'monospace', color: '#74b9ff',
+          }).setOrigin(1, 0)
+        );
+      }
+      if (stats?.isStealth) {
+        this.wavePreview.add(
+          this.add.text(x + 2, stripY - CARD_H / 2 + 1, '?', {
+            fontSize: '5px', fontFamily: 'monospace', color: '#bb6bd9',
+          }).setOrigin(0, 0)
+        );
+      }
+
+      x += CARD_W + GAP;
+    }
+  }
+
+  // Resolve enemy stats from custom defs first, then built-in data
+  _enemyStats(type) {
+    return this.customDefs[type] || ENEMY_DATA[type] || null;
   }
 
   updateHUD() {

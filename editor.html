@@ -18,7 +18,7 @@
       --red: #e74c3c;
       --blue: #3498db;
       --toolbar-w: 52px;
-      --right-w: 180px;
+      --right-w: 240px;
       --topbar-h: 32px;
       --statusbar-h: 24px;
     }
@@ -376,6 +376,54 @@
     }
     .btn-xs:hover { color: var(--accent); border-color: var(--accent); }
     .btn-xs.danger:hover { color: var(--red); border-color: var(--red); }
+
+    /* Monster editor */
+    .monster-list {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      padding: 2px 4px;
+      border-bottom: 1px solid var(--border);
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .monster-list-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px;
+      cursor: pointer;
+      border: 1px solid transparent;
+      font-size: 11px;
+    }
+    .monster-list-row:hover { background: var(--surface2); }
+    .monster-list-row.active { border-color: var(--accent); background: #3a3a5e; }
+    .monster-form { padding: 4px 8px; overflow-y: auto; }
+    .monster-form-inner { display: flex; flex-direction: column; gap: 3px; }
+    .form-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .form-row label {
+      font-size: 10px;
+      color: var(--text-dim);
+      width: 46px;
+      flex-shrink: 0;
+    }
+    .form-row input[type="text"],
+    .form-row input[type="number"] {
+      flex: 1;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: monospace;
+      font-size: 10px;
+      padding: 2px 4px;
+      outline: none;
+      min-width: 0;
+    }
+    .form-row input:focus { border-color: var(--accent); }
   </style>
 </head>
 <body>

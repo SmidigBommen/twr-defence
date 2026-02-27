@@ -126,9 +126,11 @@ export const ENEMY_DATA = {
   },
 };
 
-// Get enemy stats scaled for a specific wave
-export function getScaledEnemyStats(type, waveNumber) {
-  const base = ENEMY_DATA[type];
+// Get enemy stats scaled for a specific wave.
+// customDefs: optional map of id→def for custom enemy types.
+export function getScaledEnemyStats(type, waveNumber, customDefs = {}) {
+  const base = customDefs[type] || ENEMY_DATA[type];
+  if (!base) return null;
   const scale = 1 + (waveNumber - 1) * 0.12;
   return {
     ...base,

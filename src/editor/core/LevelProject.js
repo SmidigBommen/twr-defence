@@ -9,6 +9,7 @@ export default class LevelProject {
     this.map = this._emptyMap();
     this.waypoints = [];
     this.waves = [];
+    this.customEnemies = [];
   }
 
   _emptyMap() {
@@ -72,6 +73,7 @@ export default class LevelProject {
       map: this.map.map(row => [...row]),
       waypoints: this.waypoints.map(w => ({ ...w })),
       waves: JSON.parse(JSON.stringify(this.waves)),
+      customEnemies: JSON.parse(JSON.stringify(this.customEnemies)),
     };
   }
 
@@ -82,6 +84,7 @@ export default class LevelProject {
     this.map = snap.map.map(row => [...row]);
     this.waypoints = snap.waypoints.map(w => ({ ...w }));
     this.waves = snap.waves ? JSON.parse(JSON.stringify(snap.waves)) : [];
+    this.customEnemies = snap.customEnemies ? JSON.parse(JSON.stringify(snap.customEnemies)) : [];
     eventBus.emit('project:loaded');
   }
 
@@ -97,6 +100,7 @@ export default class LevelProject {
     }
     this.waypoints = (level.waypoints || []).map(w => ({ ...w }));
     this.waves = level.waves ? JSON.parse(JSON.stringify(level.waves)) : [];
+    this.customEnemies = (level.customEnemies || []).map(d => ({ ...d }));
     eventBus.emit('project:loaded');
   }
 
@@ -104,6 +108,7 @@ export default class LevelProject {
     this.map = this._emptyMap();
     this.waypoints = [];
     this.waves = [];
+    this.customEnemies = [];
     eventBus.emit('project:loaded');
   }
 

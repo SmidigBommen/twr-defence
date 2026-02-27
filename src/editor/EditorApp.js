@@ -15,6 +15,7 @@ import RightPanel from './ui/RightPanel.js';
 import TilePalette from './ui/TilePalette.js';
 import SpriteLibrary from './ui/SpriteLibrary.js';
 import WaveEditor from './ui/WaveEditor.js';
+import MonsterEditor from './ui/MonsterEditor.js';
 import TopBar from './ui/TopBar.js';
 import StatusBar from './ui/StatusBar.js';
 import SpriteLoader from './core/SpriteLoader.js';
@@ -46,6 +47,7 @@ export default class EditorApp {
     this.tilePalette = new TilePalette(this.rightPanel.getContent('map'), this.project);
     this.spriteLibrary = new SpriteLibrary(this.rightPanel.getContent('sprites'), this.spriteLoader);
     this.waveEditor = new WaveEditor(this.rightPanel.getContent('waves'), this.project, this.history, this.spriteLoader);
+    this.monsterEditor = new MonsterEditor(this.rightPanel.getContent('monsters'), this.project, this.history, this.spriteLoader);
     this.topBar = new TopBar(document.getElementById('topbar'), this.project);
     this.statusBar = new StatusBar(document.getElementById('statusbar'));
 
@@ -91,6 +93,7 @@ export default class EditorApp {
     eventBus.on('waypoints:changed', () => this.serializer.autosave());
     eventBus.on('project:loaded', () => this.serializer.autosave());
     eventBus.on('waves:changed', () => this.serializer.autosave());
+    eventBus.on('monsters:changed', () => this.serializer.autosave());
 
     eventBus.on('action:autoTrace', () => this._autoTrace());
     eventBus.on('action:testPath', () => this._testPath());

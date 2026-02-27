@@ -2,6 +2,7 @@ const TABS = [
   { id: 'map', label: 'Map' },
   { id: 'sprites', label: 'Sprites' },
   { id: 'waves', label: 'Waves' },
+  { id: 'monsters', label: 'Monsters' },
 ];
 
 export default class RightPanel {
