@@ -384,8 +384,9 @@ export default class GameScene extends Phaser.Scene {
       .filter(([_, unlockLevel]) => unlockLevel <= this.levelId)
       .map(([type]) => type);
 
-    const panelW = 75;
-    const panelH = availableTowers.length * 18 + 8;
+    const panelW = 130;
+    const ROW_H = 22;
+    const panelH = availableTowers.length * ROW_H + 8;
 
     // Position panel (avoid going off screen)
     let panelX = x + 16;
@@ -402,10 +403,10 @@ export default class GameScene extends Phaser.Scene {
     // Tower options
     availableTowers.forEach((type, i) => {
       const data = TOWER_DATA[type];
-      const btnY = panelY + 8 + i * 18;
+      const btnY = panelY + 4 + i * ROW_H;
       const canAfford = this.economy.canAfford(data.cost);
 
-      const btnBg = this.add.rectangle(panelX + panelW / 2, btnY + 6, panelW - 6, 16,
+      const btnBg = this.add.rectangle(panelX + panelW / 2, btnY + ROW_H / 2, panelW - 6, ROW_H - 2,
         canAfford ? 0x2a3a5a : 0x1a1a1a, 0.8
       );
       btnBg.setStrokeStyle(1, canAfford ? 0x4a6a8a : 0x333333);
@@ -414,7 +415,6 @@ export default class GameScene extends Phaser.Scene {
         btnBg.setInteractive({ useHandCursor: true });
         btnBg.on('pointerover', () => {
           btnBg.setFillStyle(0x3a4a6a, 0.9);
-          // Show range preview
           this.showRangePreview(x, y, data.levels[0].range);
         });
         btnBg.on('pointerout', () => {
@@ -426,19 +426,17 @@ export default class GameScene extends Phaser.Scene {
         });
       }
 
-      // Tower icon (small)
-      const icon = this.add.image(panelX + 10, btnY + 6, data.icon);
+      const icon = this.add.image(panelX + 11, btnY + ROW_H / 2, data.icon);
       icon.setScale(0.5);
 
-      // Name + cost
-      const name = this.add.text(panelX + 20, btnY + 2, data.name.substring(0, 8), {
-        fontSize: '5px',
+      const name = this.add.text(panelX + 22, btnY + 6, data.name.substring(0, 12), {
+        fontSize: '9px',
         fontFamily: 'monospace',
         color: canAfford ? '#ecf0f1' : '#555555',
       });
 
-      const cost = this.add.text(panelX + panelW - 5, btnY + 2, `${data.cost}g`, {
-        fontSize: '5px',
+      const cost = this.add.text(panelX + panelW - 5, btnY + 6, `${data.cost}g`, {
+        fontSize: '9px',
         fontFamily: 'monospace',
         color: canAfford ? '#ffd700' : '#555555',
       }).setOrigin(1, 0);
@@ -502,8 +500,18 @@ export default class GameScene extends Phaser.Scene {
     const data = tower.data;
     const stats = tower.getStats();
 
-    const panelW = 85;
-    const panelH = 65;
+    // Pre-calculate stat lines to size panel correctly
+    const statLines = [];
+    if (stats.damage) statLines.push(`DMG: ${Math.floor(tower.getDamage())}`);
+    if (stats.range) statLines.push(`RNG: ${Math.floor(tower.getRange())}`);
+    if (stats.fireRate) statLines.push(`SPD: ${(1000 / stats.fireRate).toFixed(1)}/s`);
+    if (stats.soldierDamage) statLines.push(`SOL: ${stats.soldierDamage}`);
+    if (stats.damageBoost) statLines.push(`BUFF: +${Math.floor(stats.damageBoost * 100)}%`);
+
+    const panelW = 130;
+    const STAT_LINE_H = 11;
+    const BTN_H = 14;
+    const panelH = 16 + statLines.length * STAT_LINE_H + 6 + BTN_H + 5;
 
     let panelX = x + 16;
     let panelY = y - panelH / 2;
@@ -519,24 +527,17 @@ export default class GameScene extends Phaser.Scene {
     this.towerInfoPanel.add(bg);
 
     // Tower name & level
-    const name = this.add.text(panelX + 5, panelY + 3, `${data.name} Lv.${tower.level + 1}`, {
-      fontSize: '6px',
+    const name = this.add.text(panelX + 5, panelY + 4, `${data.name} Lv.${tower.level + 1}`, {
+      fontSize: '9px',
       fontFamily: 'monospace',
       color: '#ffd700',
     });
     this.towerInfoPanel.add(name);
 
     // Stats
-    const statLines = [];
-    if (stats.damage) statLines.push(`DMG: ${Math.floor(tower.getDamage())}`);
-    if (stats.range) statLines.push(`RNG: ${Math.floor(tower.getRange())}`);
-    if (stats.fireRate) statLines.push(`SPD: ${(1000 / stats.fireRate).toFixed(1)}/s`);
-    if (stats.soldierDamage) statLines.push(`SOL DMG: ${stats.soldierDamage}`);
-    if (stats.damageBoost) statLines.push(`BUFF: +${Math.floor(stats.damageBoost * 100)}%`);
-
     statLines.forEach((line, i) => {
-      const text = this.add.text(panelX + 5, panelY + 13 + i * 8, line, {
-        fontSize: '5px',
+      const text = this.add.text(panelX + 5, panelY + 16 + i * STAT_LINE_H, line, {
+        fontSize: '9px',
         fontFamily: 'monospace',
         color: '#ecf0f1',
       });
@@ -544,14 +545,17 @@ export default class GameScene extends Phaser.Scene {
     });
 
     // Buttons
-    const btnY = panelY + panelH - 14;
+    const btnY = panelY + panelH - BTN_H / 2 - 3;
+    const halfW = (panelW - 10) / 2;  // each button width
+    const btn1X = panelX + 5 + halfW / 2;
+    const btn2X = panelX + panelW - 5 - halfW / 2;
 
     // Upgrade button
     if (tower.canUpgrade()) {
       const cost = tower.getUpgradeCost();
       const canAfford = this.economy.canAfford(cost);
-      const upgBtn = this.add.rectangle(panelX + 22, btnY, 38, 11,
-        canAfford ? 0x27ae60 : 0x333333, 0.8
+      const upgBtn = this.add.rectangle(btn1X, btnY, halfW, BTN_H,
+        canAfford ? 0x27ae60 : 0x333333, 0.9
       );
       upgBtn.setStrokeStyle(1, canAfford ? 0x2ecc71 : 0x444444);
       if (canAfford) {
@@ -563,8 +567,8 @@ export default class GameScene extends Phaser.Scene {
           }
         });
       }
-      const upgText = this.add.text(panelX + 22, btnY, `UP ${cost}g`, {
-        fontSize: '5px',
+      const upgText = this.add.text(btn1X, btnY, `UP ${cost}g`, {
+        fontSize: '9px',
         fontFamily: 'monospace',
         color: canAfford ? '#ffffff' : '#555555',
       }).setOrigin(0.5);
@@ -573,14 +577,14 @@ export default class GameScene extends Phaser.Scene {
 
     // Sell button
     const sellValue = tower.getSellValue();
-    const sellBtn = this.add.rectangle(panelX + panelW - 22, btnY, 38, 11, 0xc0392b, 0.8);
+    const sellBtn = this.add.rectangle(btn2X, btnY, halfW, BTN_H, 0xc0392b, 0.9);
     sellBtn.setStrokeStyle(1, 0xe74c3c);
     sellBtn.setInteractive({ useHandCursor: true });
     sellBtn.on('pointerdown', () => {
       this.sellTower(tower);
     });
-    const sellText = this.add.text(panelX + panelW - 22, btnY, `SELL ${sellValue}g`, {
-      fontSize: '5px',
+    const sellText = this.add.text(btn2X, btnY, `SELL ${sellValue}g`, {
+      fontSize: '9px',
       fontFamily: 'monospace',
       color: '#ffffff',
     }).setOrigin(0.5);

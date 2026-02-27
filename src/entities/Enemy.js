@@ -41,11 +41,10 @@ export default class Enemy {
     this.x = start.x + Phaser.Math.FloatBetween(-3, 3);
     this.y = start.y + Phaser.Math.FloatBetween(-3, 3);
 
-    // Create sprite
+    // Create sprite — display at ENEMY_DISPLAY px base, scaled by enemy size
     this.sprite = scene.add.image(this.x, this.y, stats.sprite);
-    if (this.size !== 1) {
-      this.sprite.setScale(this.size);
-    }
+    const d = SPRITE_SIZES.ENEMY_DISPLAY * this.size;
+    this.sprite.setDisplaySize(d, d);
     this.sprite.setDepth(10);
 
     // Flying enemies bob up and down and have a shadow
@@ -53,7 +52,7 @@ export default class Enemy {
       this.flyOffset = 0;
       this.shadow = scene.add.ellipse(
         this.x, this.y + 8,
-        SPRITE_SIZES.ENEMY * 0.35, SPRITE_SIZES.ENEMY * 0.15,
+        d * 0.35, d * 0.15,
         0x000000, 0.3
       );
       this.shadow.setDepth(9);

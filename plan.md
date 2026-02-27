@@ -11,6 +11,6 @@
 ## Possible next work
 - Implement missing tier-3 specials and boss abilities
 - Balance pass across all 6 levels
-- Custom Spritey art for enemies/towers
+- Custom Spritey art for towers (enemy sprites done — Tiny Creatures CC0)
 - More active abilities
 - Sound effects

@@ -12,6 +12,9 @@ export const SPRITE_SIZES = {
   ENEMY: 32,
   PROJECTILE: 32,
   ICON: 32,
+  // In-game display sizes: towers are 2× tile (prominent), enemies ~1.25× tile (smaller, readable hierarchy)
+  TOWER_DISPLAY: 32,
+  ENEMY_DISPLAY: 20,
 };
 
 // Map cell types

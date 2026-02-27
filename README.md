@@ -65,36 +65,31 @@ Towers unlock progressively: Arcane and Flame from level 1, Frost and Barracks f
 
 ## Sprites
 
-All visuals are generated procedurally at boot time — no image files are loaded. The single source file for all art is:
+Sprites are loaded from PNGs in `public/assets/` when present, falling back to procedural generation via `src/utils/PixelArtGenerator.js`. All textures are 32×32. Display sizes differ by type:
 
-```
-src/utils/PixelArtGenerator.js
-```
-
-The exported function `generateTextures(scene)` creates 38 textures using Phaser's Graphics API. Every sprite in the game references textures by string key. To change the art style, modify only this file.
-
-### Art Technique
-
-Each shape is drawn with a cartoon outline: first drawn slightly larger in a dark colour (`0x1a1a2e`), then filled at normal size with a vibrant flat colour. Three helper functions handle this:
-
-- `oCircle(g, x, y, r, fill, outline)` — outlined circle
-- `oRect(g, x, y, w, h, fill, outline)` — outlined rectangle
-- `oRRect(g, x, y, w, h, rad, fill, outline)` — outlined rounded rectangle
+| Type | Display size | Notes |
+|------|-------------|-------|
+| Terrain tiles | 16×16 | 1:1 with the tile grid |
+| Towers | 32×32 | 2× tile — visually prominent |
+| Enemies | 20×20 | 1.25× tile — readable but subordinate |
+| Projectiles | varies | scaled per projectile type |
 
 ### Texture Keys
 
-| Category | Size | Keys |
-|----------|------|------|
-| Terrain | 16x16 | `tile_grass`, `tile_path`, `tile_water`, `tile_trees`, `tile_trees2`, `tile_trees3`, `tile_rocks`, `tile_build`, `tile_castle` |
-| Towers | 24x24 | `tower_arcane`, `tower_flame`, `tower_frost`, `tower_barracks`, `tower_lightning`, `tower_enchanter` |
-| Enemies | 20x20 | `enemy_goblin`, `enemy_wolf`, `enemy_troll`, `enemy_harpy`, `enemy_wraith`, `enemy_priest`, `enemy_imp`, `enemy_dragon`, `enemy_lich` |
-| Projectiles | 8x8 | `proj_arcane`, `proj_flame`, `proj_frost`, `proj_lightning` |
-| Icons | 12x12 | `icon_heart`, `icon_coin` |
-| Particles | varies | `particle_magic`, `particle_fire`, `particle_ice`, `particle_lightning`, `particle_heal`, `particle_death`, `particle_gold`, `range_circle` |
+| Category | Keys |
+|----------|------|
+| Terrain | `tile_grass`, `tile_path`, `tile_water`, `tile_trees`, `tile_trees2`, `tile_trees3`, `tile_rocks`, `tile_build`, `tile_castle` |
+| Towers | `tower_arcane`, `tower_flame`, `tower_frost`, `tower_barracks`, `tower_lightning`, `tower_enchanter` |
+| Enemies | `enemy_goblin`, `enemy_wolf`, `enemy_troll`, `enemy_harpy`, `enemy_wraith`, `enemy_priest`, `enemy_imp`, `enemy_dragon`, `enemy_lich` |
+| Projectiles | `proj_arcane`, `proj_flame`, `proj_frost`, `proj_lightning` |
+| Icons | `icon_heart`, `icon_coin` |
+| Particles | `particle_magic`, `particle_fire`, `particle_ice`, `particle_lightning`, `particle_heal`, `particle_death`, `particle_gold`, `range_circle` |
 
-### Replacing Sprites With Image Assets
+### Adding or Replacing Sprites
 
-To swap procedural art for loaded images, add your assets to a `public/` folder and load them in `BootScene.js` using `this.load.image(key, path)` with the same texture key strings. Remove the corresponding `gen*` call from `PixelArtGenerator.js`. The rest of the game code needs no changes.
+Drop a 32×32 PNG named `<key>.png` into the matching `public/assets/<category>/` directory. The boot scene loads PNGs listed in `src/data/assetManifest.js` and only falls back to procedural generation for keys not loaded from disk.
+
+See `public/assets/CREDITS.txt` for third-party asset attributions.
 
 ## Level Editor
 
