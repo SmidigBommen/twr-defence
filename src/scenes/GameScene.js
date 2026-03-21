@@ -6,6 +6,7 @@ import Tower from '../entities/Tower.js';
 import WaveManager from '../managers/WaveManager.js';
 import EconomyManager from '../managers/EconomyManager.js';
 import { tracePathWaypoints } from '../utils/pathTracer.js';
+import { getPathTile } from '../utils/pathAutotile.js';
 
 export default class GameScene extends Phaser.Scene {
   constructor() {
@@ -119,6 +120,7 @@ export default class GameScene extends Phaser.Scene {
   renderMap(map) {
     this.mapTiles = [];
     const treeVariants = ['tile_trees', 'tile_trees2', 'tile_trees3'];
+    const PATH_LIKE = new Set([CELL.PATH, CELL.START, CELL.END, CELL.BRIDGE]);
 
     // Fill entire background with grass first (prevents dark gaps)
     for (let y = 0; y < GRID_ROWS; y++) {
@@ -134,24 +136,27 @@ export default class GameScene extends Phaser.Scene {
     }
 
     const tileTextures = {
-      [CELL.PATH]: 'tile_path',
       [CELL.BUILD]: 'tile_build',
       [CELL.WATER]: 'tile_water',
       [CELL.ROCKS]: 'tile_rocks',
-      [CELL.START]: 'tile_path',
       [CELL.END]: 'tile_castle',
-      [CELL.BRIDGE]: 'tile_path',
     };
 
     for (let y = 0; y < map.length; y++) {
       for (let x = 0; x < map[y].length; x++) {
         const cellType = map[y][x];
-        if (cellType === CELL.EMPTY) continue; // Already grass
+        if (cellType === CELL.EMPTY) continue;
 
         let textureKey;
+        let angle = 0;
+
         if (cellType === CELL.TREES) {
-          // Random tree variant seeded by position for consistency
           textureKey = treeVariants[(x * 7 + y * 13) % treeVariants.length];
+        } else if (PATH_LIKE.has(cellType) && cellType !== CELL.END) {
+          // Autotile path variants with rotation
+          const auto = getPathTile(map, x, y);
+          textureKey = auto.key;
+          angle = auto.angle;
         } else {
           textureKey = tileTextures[cellType] || 'tile_grass';
         }
@@ -163,11 +168,7 @@ export default class GameScene extends Phaser.Scene {
         );
         tile.setDisplaySize(TILE_SIZE, TILE_SIZE);
         tile.setDepth(1);
-
-        // Path edge darkening for depth
-        if (cellType === CELL.PATH || cellType === CELL.START || cellType === CELL.BRIDGE) {
-          tile.setDepth(1);
-        }
+        if (angle !== 0) tile.setAngle(angle);
 
         // Castle glow effect
         if (cellType === CELL.END) {

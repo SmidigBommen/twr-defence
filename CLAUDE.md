@@ -87,8 +87,15 @@ color (`0x1a1a2e`), then filled at normal size with a vibrant flat color. Helper
 `oCircle`, `oRect`, and `oRRect` handle this outline+fill pattern. Procedural art is drawn at
 original sizes then rescaled to target sizes via nearest-neighbor canvas scaling.
 
-**Texture keys (38 total):**
-- 9 terrain tiles: `tile_grass`, `tile_path`, `tile_water`, `tile_trees`, `tile_trees2`, `tile_trees3`, `tile_rocks`, `tile_build`, `tile_castle`
+**Path autotiling:** Path cells use rotation-based autotiling via `src/utils/pathAutotile.js`.
+Each path cell's 4 cardinal neighbors are checked to build a bitmask that selects one of 5 base
+tile shapes (straight, corner, t-junction, cross, end-cap) plus a rotation angle (0/90/180/270).
+The `getPathTile(map, x, y)` function returns `{ key, angle }` — used by both GameScene and the
+editor's MapRenderer. PATH, START, END, and BRIDGE cells are "path-like" for neighbor detection;
+END cells keep `tile_castle` texture (not autotiled themselves).
+
+**Texture keys (42 total):**
+- 13 terrain tiles: `tile_grass`, `tile_path`, `tile_path_straight`, `tile_path_corner`, `tile_path_tjunction`, `tile_path_end`, `tile_water`, `tile_trees`, `tile_trees2`, `tile_trees3`, `tile_rocks`, `tile_build`, `tile_castle`
 - 6 towers: `tower_arcane`, `tower_flame`, `tower_frost`, `tower_barracks`, `tower_lightning`, `tower_enchanter`
 - 9 enemies: `enemy_goblin`, `enemy_wolf`, `enemy_troll`, `enemy_harpy`, `enemy_wraith`, `enemy_priest`, `enemy_imp`, `enemy_dragon`, `enemy_lich`
 - 4 projectiles: `proj_arcane`, `proj_flame`, `proj_frost`, `proj_lightning`

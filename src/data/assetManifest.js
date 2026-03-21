@@ -7,6 +7,10 @@ export const ASSET_MANIFEST = [
   // Tiles (32x32)
   { key: 'tile_grass', category: 'tile', path: 'assets/tiles/tile_grass.png' },
   { key: 'tile_path', category: 'tile', path: 'assets/tiles/tile_path.png' },
+  { key: 'tile_path_straight', category: 'tile', path: 'assets/tiles/tile_path_straight.png' },
+  { key: 'tile_path_corner', category: 'tile', path: 'assets/tiles/tile_path_corner.png' },
+  { key: 'tile_path_tjunction', category: 'tile', path: 'assets/tiles/tile_path_tjunction.png' },
+  { key: 'tile_path_end', category: 'tile', path: 'assets/tiles/tile_path_end.png' },
   { key: 'tile_water', category: 'tile', path: 'assets/tiles/tile_water.png' },
   { key: 'tile_trees', category: 'tile', path: 'assets/tiles/tile_trees.png' },
   { key: 'tile_trees2', category: 'tile', path: 'assets/tiles/tile_trees2.png' },

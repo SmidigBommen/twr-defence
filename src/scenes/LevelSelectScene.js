@@ -14,7 +14,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     this.cameras.main.fadeIn(400);
 
     // Title
-    this.add.text(cx, 20, 'SELECT LEVEL', {
+    this.add.text(cx, 12, 'SELECT LEVEL', {
       fontSize: '14px',
       fontFamily: 'monospace',
       color: '#ffd700',
@@ -31,7 +31,7 @@ export default class LevelSelectScene extends Phaser.Scene {
     const gapX = 15;
     const gapY = 15;
     const startX = cx - ((cols * cardW + (cols - 1) * gapX) / 2) + cardW / 2;
-    const startY = 55;
+    const startY = 68;
 
     LEVELS.forEach((level, i) => {
       const col = i % cols;

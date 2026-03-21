@@ -1,4 +1,5 @@
 import { CELL, TILE_SIZE, GRID_COLS, GRID_ROWS } from '../../utils/constants.js';
+import { getPathTile } from '../../utils/pathAutotile.js';
 import { eventBus } from './EventBus.js';
 
 // Cell type → display color (fallback when no sprite available)
@@ -17,14 +18,13 @@ const CELL_COLORS = {
 // Cell type → texture key (matches GameScene.renderMap)
 const CELL_TEXTURE_MAP = {
   [CELL.EMPTY]:  'tile_grass',
-  [CELL.PATH]:   'tile_path',
   [CELL.BUILD]:  'tile_build',
   [CELL.WATER]:  'tile_water',
   [CELL.ROCKS]:  'tile_rocks',
-  [CELL.START]:  'tile_path',
   [CELL.END]:    'tile_castle',
-  [CELL.BRIDGE]: 'tile_path',
 };
+
+const PATH_LIKE = new Set([CELL.PATH, CELL.START, CELL.END, CELL.BRIDGE]);
 
 const TREE_VARIANTS = ['tile_trees', 'tile_trees2', 'tile_trees3'];
 
@@ -84,17 +84,30 @@ export default class MapRenderer {
         const px = x * TILE_SIZE;
         const py = y * TILE_SIZE;
 
-        // Resolve texture key
+        // Resolve texture key + rotation via autotile for path-like cells
         let texKey;
+        let angle = 0;
         if (cell === CELL.TREES) {
           texKey = TREE_VARIANTS[(x * 7 + y * 13) % TREE_VARIANTS.length];
+        } else if (PATH_LIKE.has(cell) && cell !== CELL.END) {
+          const auto = getPathTile(project.map, x, y);
+          texKey = auto.key;
+          angle = auto.angle;
         } else {
           texKey = CELL_TEXTURE_MAP[cell];
         }
 
         const img = this.spriteLoader && texKey ? this.spriteLoader.get(texKey) : null;
         if (img) {
-          ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+          if (angle !== 0) {
+            ctx.save();
+            ctx.translate(px + TILE_SIZE / 2, py + TILE_SIZE / 2);
+            ctx.rotate(angle * Math.PI / 180);
+            ctx.drawImage(img, -TILE_SIZE / 2, -TILE_SIZE / 2, TILE_SIZE, TILE_SIZE);
+            ctx.restore();
+          } else {
+            ctx.drawImage(img, px, py, TILE_SIZE, TILE_SIZE);
+          }
         } else {
           ctx.fillStyle = CELL_COLORS[cell] || CELL_COLORS[CELL.EMPTY];
           ctx.fillRect(px, py, TILE_SIZE, TILE_SIZE);

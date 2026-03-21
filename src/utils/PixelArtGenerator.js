@@ -73,6 +73,10 @@ export function generateFallbackTextures(scene) {
 
   if (!exists('tile_grass')) genTileGrass(scene);
   if (!exists('tile_path')) genTilePath(scene);
+  if (!exists('tile_path_straight')) genTilePathStraight(scene);
+  if (!exists('tile_path_corner')) genTilePathCorner(scene);
+  if (!exists('tile_path_tjunction')) genTilePathTJunction(scene);
+  if (!exists('tile_path_end')) genTilePathEnd(scene);
   if (!exists('tile_water')) genTileWater(scene);
   if (!exists('tile_trees')) genTileTrees(scene, 'tile_trees', [[4, 3], [12, 10]]);
   if (!exists('tile_trees2')) genTileTrees(scene, 'tile_trees2', [[12, 3], [4, 10]]);
@@ -117,6 +121,10 @@ export function generateFallbackTextures(scene) {
 function generateTiles(scene) {
   genTileGrass(scene);
   genTilePath(scene);
+  genTilePathStraight(scene);
+  genTilePathCorner(scene);
+  genTilePathTJunction(scene);
+  genTilePathEnd(scene);
   genTileWater(scene);
   genTileTrees(scene, 'tile_trees', [[4, 3], [12, 10]]);
   genTileTrees(scene, 'tile_trees2', [[12, 3], [4, 10]]);
@@ -188,6 +196,135 @@ function genTilePath(scene) {
   g.fillCircle(6, 6, 0.6);
 
   gen(g, 'tile_path', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
+}
+
+// ── Autotile path variants ─────────────────────────────────
+// Each variant draws grass background + dirt path shape.
+// Canonical orientations are rotated at render time by the autotile system.
+
+// Helper: fill tile with grass base (matches genTileGrass colors)
+function fillGrassBase(g, S) {
+  g.fillStyle(0x3e8948);
+  g.fillRect(0, 0, S, S);
+  g.fillStyle(0x2d5a27);
+  g.fillCircle(3, 5, 1);
+  g.fillCircle(13, 11, 1);
+  g.fillStyle(0x63c74d);
+  g.fillCircle(7, 3, 0.8);
+  g.fillCircle(12, 7, 0.8);
+}
+
+// Helper: add dirt speckles within a region
+function addDirtSpeckles(g, cx, cy) {
+  g.fillStyle(0xb8860b);
+  g.fillCircle(cx - 2, cy - 1, 0.8);
+  g.fillCircle(cx + 2, cy + 2, 0.7);
+  g.fillStyle(0x5a3a28);
+  g.fillCircle(cx + 1, cy - 2, 0.6);
+  g.fillCircle(cx - 1, cy + 1, 0.6);
+}
+
+// Straight: canonical N+S (vertical). Dirt strip in center, grass on left/right.
+function genTilePathStraight(scene) {
+  const g = makeGfx(scene);
+  const S = 16;
+  fillGrassBase(g, S);
+
+  // Dirt strip edges
+  const edge = 3; // grass border width on each side
+  g.fillStyle(0x6b4226);
+  g.fillRect(edge - 1, 0, S - (edge - 1) * 2, S);
+  // Dirt fill
+  g.fillStyle(0x8b6914);
+  g.fillRect(edge, 0, S - edge * 2, S);
+
+  addDirtSpeckles(g, S / 2, S / 2);
+
+  gen(g, 'tile_path_straight', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
+}
+
+// Corner: canonical N+E. Dirt connects to north edge and east edge as an L-shape.
+// Grass fills the bottom-left area.
+function genTilePathCorner(scene) {
+  const g = makeGfx(scene);
+  const S = 16;
+  fillGrassBase(g, S);
+
+  const edge = 3;
+  // Dirt border then fill covers the L-shape:
+  // - Full width strip across top (north connection) extending down to center
+  // - Right strip from center down (east connection... but east is horizontal).
+  // Actually: N+E means the path continues up and to the right.
+  // So the dirt is a vertical strip (for N) that bends into a horizontal strip (for E).
+  // The grass is in the bottom-left corner.
+
+  // Draw border color for the whole L region
+  g.fillStyle(0x6b4226);
+  // Vertical part: top to center, centered horizontally
+  g.fillRect(edge - 1, 0, S - (edge - 1) * 2, S / 2 + 1);
+  // Horizontal part: center to right, centered vertically
+  g.fillRect(edge - 1, edge - 1, S - (edge - 1), S - (edge - 1) * 2);
+
+  // Fill dirt over the L
+  g.fillStyle(0x8b6914);
+  // Vertical part
+  g.fillRect(edge, 0, S - edge * 2, S / 2);
+  // Horizontal part
+  g.fillRect(edge, edge, S - edge, S - edge * 2);
+
+  addDirtSpeckles(g, S / 2 + 1, S / 2 - 1);
+
+  gen(g, 'tile_path_corner', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
+}
+
+// T-Junction: canonical N+E+S (open on west). Dirt covers right 3/4, grass strip on left.
+function genTilePathTJunction(scene) {
+  const g = makeGfx(scene);
+  const S = 16;
+  fillGrassBase(g, S);
+
+  const edge = 3;
+  // Dirt fills everything except a grass strip on the west side
+  g.fillStyle(0x6b4226);
+  g.fillRect(edge - 1, 0, S - (edge - 1), S);
+  g.fillStyle(0x8b6914);
+  g.fillRect(edge, 0, S - edge, S);
+
+  // Re-draw the edge line on the open side
+  g.fillStyle(0x6b4226);
+  g.fillRect(edge - 1, 0, 1, S);
+
+  addDirtSpeckles(g, S / 2 + 1, S / 2);
+
+  gen(g, 'tile_path_tjunction', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
+}
+
+// End cap: canonical N only (path continues north, dead end here).
+// Dirt stub in upper portion, grass on left/right/bottom.
+function genTilePathEnd(scene) {
+  const g = makeGfx(scene);
+  const S = 16;
+  fillGrassBase(g, S);
+
+  const edge = 3;
+  // Dirt stub from top edge down to ~60% of tile
+  const stubH = 10;
+  g.fillStyle(0x6b4226);
+  g.fillRect(edge - 1, 0, S - (edge - 1) * 2, stubH + 1);
+  g.fillStyle(0x8b6914);
+  g.fillRect(edge, 0, S - edge * 2, stubH);
+
+  // Rounded bottom end
+  g.fillStyle(0x8b6914);
+  g.fillCircle(S / 2, stubH - 1, S / 2 - edge);
+  g.fillStyle(0x6b4226);
+  g.fillCircle(S / 2, stubH, S / 2 - edge + 0.5);
+  g.fillStyle(0x8b6914);
+  g.fillCircle(S / 2, stubH - 1, S / 2 - edge - 0.5);
+
+  addDirtSpeckles(g, S / 2, S / 2 - 2);
+
+  gen(g, 'tile_path_end', S, S, SPRITE_SIZES.TILE, SPRITE_SIZES.TILE);
 }
 
 function genTileWater(scene) {
